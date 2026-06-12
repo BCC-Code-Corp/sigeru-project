@@ -18,21 +18,21 @@ Gestión de Datos: Análisis de información para la toma de decisiones estraté
 🛠 Tecnologías Utilizadas
 El proyecto se basa en una arquitectura moderna y estándares industriales:
 
-Frontend: [HTML5, CSS y JavaScript (con arquitectura MVC)]
+Frontend: HTML5, CSS y JavaScript (con arquitectura MVC)
 
-Backend: [PHP versión 8, siguiendo el estándar de API REST y arquitectura MVC]
+Backend: PHP versión 8, siguiendo el estándar de API REST y arquitectura MVC
 
-Base de Datos: [MySQL versión 8]
+Base de Datos: MySQL versión 8
 
-Infraestructura: [Servidor Web: Entorno Linux.  
+Infraestructura: Servidor Web: Entorno Linux.  
                   Contenedores: Implementación de todas las aplicaciones en Docker.  
                   Control de Versiones: 
-                  Código fuente hosteado en GitHub y versionado con Git. ]
+                  Código fuente hosteado en GitHub y versionado con Git. 
 
 🏗 Metodología de Desarrollo
 En BCC Code Corp., aplicamos metodologías ágiles para asegurar el control de calidad y la entrega incremental de valor:
 
-Planificación: Gestión de tareas mediante tableros [Kanban/Scrum].
+Planificación: Gestión de tareas mediante tableros Kanban/Scrum.
 
 Control de Versiones: Flujo de trabajo basado en Git siguiendo las mejores prácticas (GitFlow).
 
@@ -40,11 +40,11 @@ Integración Continua: Automatización de procesos mediante GitHub Actions para 
 
 👤 Equipo de Desarrollo (BCC Code Corp.)
 
-[Francisco Barreto] - Coordinador
+Francisco Barreto - Coordinador
 
-[Mateo Cortizo] - SubCoordinador
+Mateo Cortizo - SubCoordinador
 
-[Giuliano Crotti] - Miembro
+Giuliano Crotti - Miembro
 
 📄 Documentación Adicional
 Este proyecto cumple con los requisitos académicos establecidos por la DGETP/UTU para la edición 2026 del Proyecto de Pasaje de Grado.
