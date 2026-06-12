@@ -1,4 +1,4 @@
-![Logo]()
+![Logo](Captura de pantalla 2026-06-12 113015.png)
 SiGeRU (Sistema de Gestión de Residuos Urbanos)
 Este repositorio contiene el desarrollo del Sistema de Gestión de Residuos Urbanos (SiGeRU), una solución tecnológica integral diseñada para optimizar la recolección, monitoreo y gestión de residuos. Este proyecto es desarrollado por BCC Code Corp. en el marco del Proyecto de Pasaje de Grado 2026 de la Escuela Superior de Informática (ESI) - UTU.
 
