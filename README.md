@@ -18,13 +18,13 @@ Gestión de Datos: Análisis de información para la toma de decisiones estraté
 🛠 Tecnologías Utilizadas
 El proyecto se basa en una arquitectura moderna y estándares industriales:
 
-Frontend: [Tu tecnología, ej: React / Next.js]
+Frontend: [HTML5, CSS y JavaScript (con arquitectura MVC)]
 
-Backend: [Tu tecnología, ej: Node.js / Express / Java Spring]
+Backend: [PHP versión 8, siguiendo el estándar de API REST y arquitectura MVC]
 
-Base de Datos: [Ej: PostgreSQL / MongoDB]
+Base de Datos: [MySQL versión 8]
 
-Infraestructura: [Ej: Docker, GitHub Actions para CI/CD]
+Infraestructura: [Servidor Web: Entorno Linux.  Contenedores: Implementación de todas las aplicaciones en Docker.  Control de Versiones: Código fuente hosteado en GitHub y versionado con Git. ]
 
 🏗 Metodología de Desarrollo
 En BCC Code Corp., aplicamos metodologías ágiles para asegurar el control de calidad y la entrega incremental de valor:
