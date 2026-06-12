@@ -24,7 +24,10 @@ Backend: [PHP versión 8, siguiendo el estándar de API REST y arquitectura MVC]
 
 Base de Datos: [MySQL versión 8]
 
-Infraestructura: [Servidor Web: Entorno Linux.  Contenedores: Implementación de todas las aplicaciones en Docker.  Control de Versiones: Código fuente hosteado en GitHub y versionado con Git. ]
+Infraestructura: [Servidor Web: Entorno Linux.  
+                  Contenedores: Implementación de todas las aplicaciones en Docker.  
+                  Control de Versiones: 
+                  Código fuente hosteado en GitHub y versionado con Git. ]
 
 🏗 Metodología de Desarrollo
 En BCC Code Corp., aplicamos metodologías ágiles para asegurar el control de calidad y la entrega incremental de valor:
