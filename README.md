@@ -34,6 +34,7 @@ Control de Versiones: Flujo de trabajo basado en Git siguiendo las mejores prác
 Integración Continua: Automatización de procesos mediante GitHub Actions para garantizar la integridad del código en cada despliegue.
 
 👤 Equipo de Desarrollo (BCC Code Corp.)
+
 [Francisco Barreto] - Coordinador
 
 [Mateo Cortizo] - SubCoordinador
