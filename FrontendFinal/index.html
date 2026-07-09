@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Bebas+Neue&family=Barlow:wght@400;500;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>SIGERU | Sistema de Gestión de Residuos Urbanos</title>
+</head>
+<body>
+    <div class="barra-progreso" id="progreso"></div>
+    <header id="encabezado">
+        <nav>
+            <a href="#inicio" class="logo">
+                <span class="logo-icono">(Logo)</span>
+                SIGERU
+            </a>
+            <ul class="nav-links">
+                <li><a href="#inicio" class="active">Inicio</a></li>
+                <li><a href="#areas-sistema">Módulos</a></li>
+                <li><a href="#resumen-sistema">Sobre el sistema</a></li>
+                <li><a href="#usuarios-roles">Roles</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+            <div class="nav-acciones">
+                <div class="nav-icono">👤</div>
+                <div class="nav-icono">☰</div>
+            </div>
+        </nav>
+    </header>
+    <main id="contenido-principal">
+        <section class="portada" id="inicio">
+            <p class="portada-marca-agua">SIGERU</p>
+            <div class="portada-info">
+                <p class="portada-etiqueta">
+                    Bienvenido a SIGERU
+                </p>
+                <h1 class="portada-titulo">
+                    Sistema de Gestión de Residuos Urbanos
+                </h1>
+                <p class="portada-descripcion">
+                    Una plataforma para <strong>administrar contenedores, dar seguimiento a incidencias y planificar rutas de recolección</strong>, pensada para facilitar la gestión municipal de residuos urbanos.
+                </p>
+                <p class="portada-creditos">
+                    Proyecto de Pasaje de Grado 2026 — <strong>BT Tecnologías de la Información</strong>
+                </p>
+                <div class="portada-botones">
+                    <a href="#areas-sistema" class="boton-primario">
+                        Comenzar
+                    </a>
+                    <a href="#resumen-sistema" class="boton-secundario">
+                        Ver más
+                    </a>
+                </div>
+                <div class="portada-estadisticas">
+                    <div class="estadistica">
+                        <p class="estadistica-numero">120+</p>
+                        <p class="estadistica-texto">
+                            Contenedores <br> monitoreados
+                        </p>
+                    </div>
+                    <div class="estadistica">
+                        <p class="estadistica-numero">35%</p>
+                        <p class="estadistica-texto">
+                            Reducción de <br> recorridos
+                        </p>
+                    </div>
+                    <div class="estadistica">
+                        <p class="estadistica-numero">8</p>
+                        <p class="estadistica-texto">
+                            Zonas <br> cubiertas
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="portada-imagen">
+                <div class="camion-imagen-contenedor">
+                    <div class="camion-imagen-fondo">
+                        <img class="camion-imagen" src="img/hero.png" alt="Camión recolector monitoreado por el sistema SIGERU">
+                    </div>
+                </div>
+                <div class="indicador-scroll">
+                    <svg viewBox="0 0 80 80">
+                        <defs>
+                            <path id="circulo-scroll" d="M40,40 m-27,0 a27,27 0 1,0 54,0 a27,27 0 1,0 -54,0"/>
+                        </defs>
+                        <text fill="#8aab90" font-size="9" font-family="Barlow Condensed" letter-spacing="2">
+                            <textPath href="#circulo-scroll">
+                                Desliza hacia abajo
+                            </textPath>
+                        </text>
+                    </svg>
+                    <span class="indicador-flecha">
+                        ↓
+                    </span>
+                </div>
+            </div>
+        </section>
+        <section id="areas-sistema">
+            <p class="section-label">Funcionalidades</p>
+            <h2 class="section-title">Módulos del sistema</h2>
+            <div class="areas-grid">
+                <div class="area-card">
+                    <div class="area-fondo area-informacion-contenedores"></div>
+                    <div class="area-contenido">
+                        <p class="area-categoria">Administración</p>
+                        <p class="area-nombre">Gestión de contenedores</p>
+                    </div>
+                </div>
+                <div class="area-card">
+                    <div class="area-fondo area-recursos"></div>
+                    <div class="area-contenido">
+                        <p class="area-categoria">Logística</p>
+                        <p class="area-nombre">Gestión de recursos</p>
+                    </div>
+                </div>
+                <div class="area-card">
+                    <div class="area-fondo area-incidencias"></div>
+                    <div class="area-contenido">
+                        <p class="area-categoria">Seguimiento</p>
+                        <p class="area-nombre">Gestión de incidencias</p>
+                        <a href="#resumen-sistema" class="area-boton">Ver más</a>
+                    </div>
+                </div>
+                <div class="area-card">
+                    <div class="area-fondo area-informacion-rutas"></div>
+                    <div class="area-contenido">
+                        <p class="area-categoria">Planificación</p>
+                        <p class="area-nombre">Rutas de recolección</p>
+                    </div>
+                </div>
+                <div class="area-card">
+                    <div class="area-fondo area-informes"></div>
+                    <div class="area-contenido">
+                        <p class="area-categoria">Análisis</p>
+                        <p class="area-nombre">Informes y reportes</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="resumen-sistema">
+            <div class="resumen-section">
+                <div class="resumen-imagenes">
+                    <div class="resumen-imagen-card">
+                        <img class="resumen-imagen" src="" alt="Camión recolector de residuos">
+                    </div>
+                    <div class="resumen-imagen-card">
+                        <img class="resumen-imagen" src="" alt="Contenedor con sensor de nivel de llenado">
+                    </div>
+                    <div class="resumen-imagen-card">
+                        <img class="resumen-imagen" src="" alt="Panel de control del sistema SIGERU">
+                    </div>
+                </div>
+                <div class="resumen-contenido">
+                    <p class="section-label" style="text-align: left;">Sobre el sistema</p>
+                    <h2 class="section-title" style="text-align: left;">¿Qué resuelve SIGERU?</h2>
+                    <ul class="resumen-lista">
+                        <li>
+                            <details class="resumen-item" open>
+                                <summary class="resumen-item-header">
+                                    <div class="resumen-item-icono">📋</div>
+                                    Seguimiento centralizado de incidencias
+                                </summary>
+                                <p class="resumen-item-detalle">Registrá roturas, desbordes o falta de recolección, y hacé seguimiento del estado en tiempo real: abierta, en curso o resuelta.</p>
+                            </details>
+                        </li>
+                        <li>
+                            <details class="resumen-item">
+                                <summary class="resumen-item-header">
+                                    <div class="resumen-item-icono">🗺️</div>
+                                    Mapa interactivo en tiempo real
+                                </summary>
+                                <p class="resumen-item-detalle">Visualizá la ubicación de contenedores, incidencias, centros de acopio y camiones, todo en un mismo mapa.</p>
+                            </details>
+                        </li>
+                        <li>
+                            <details class="resumen-item">
+                                <summary class="resumen-item-header">
+                                    <div class="resumen-item-icono">🚛</div>
+                                    Gestión de flota y recursos
+                                </summary>
+                                <p class="resumen-item-detalle">Controlá el estado y la disponibilidad de camiones recolectores y contenedores de repuesto.</p>
+                            </details>
+                        </li>
+                        <li>
+                            <details class="resumen-item">
+                                <summary class="resumen-item-header">
+                                    <div class="resumen-item-icono">📊</div>
+                                    Toma de decisiones con datos
+                                </summary>
+                                <p class="resumen-item-detalle">Accedé a estadísticas de zonas críticas, tiempos de resolución y frecuencia de recolección para planificar mejor.</p>
+                            </details>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section id="usuarios-roles" class="usuarios-roles-section">
+            <p class="section-label">Roles del sistema</p>
+            <h2 class="section-title">Quién usa SIGERU</h2>
+            <div class="usuarios-roles-grid">
+                <div class="rol-card">
+                    <p class="rol-badge">Rol</p>
+                    <p class="rol-nombre">Administrador municipal</p>
+                    <ul class="rol-funciones">
+                        <li class="rol-funcion">Gestiona usuarios y contenedores</li>
+                        <li class="rol-funcion">Administra recursos y flota</li>
+                        <li class="rol-funcion">Accede a reportes y estadísticas</li>
+                    </ul>
+                    <a href="#contacto" class="rol-cta">Ver funciones</a>
+                </div>
+                <div class="rol-card">
+                    <p class="rol-badge">Rol</p>
+                    <p class="rol-nombre">Funcionario</p>
+                    <ul class="rol-funciones">
+                        <li class="rol-funcion">Visualiza rutas asignadas</li>
+                        <li class="rol-funcion">Actualiza estado de incidencias</li>
+                        <li class="rol-funcion">Reporta novedades desde el campo</li>
+                    </ul>
+                    <a href="#contacto" class="rol-cta">Ver funciones</a>
+                </div>
+                <div class="rol-card">
+                    <p class="rol-badge">Rol</p>
+                    <p class="rol-nombre">Operario de acopio</p>
+                    <ul class="rol-funciones">
+                        <li class="rol-funcion">Registra ingreso de residuos</li>
+                        <li class="rol-funcion">Controla capacidad disponible</li>
+                        <li class="rol-funcion">Clasifica el tipo de residuo</li>
+                    </ul>
+                    <a href="#contacto" class="rol-cta">Ver funciones</a>
+                </div>
+            </div>
+        </section>
+        <section id="contacto">
+            <div class="contacto-section">
+                <div class="contacto-imagen">
+                    <img src="" alt="Equipo de recolección de residuos urbanos">
+                </div>
+                <div class="contacto-contenido">
+                    <p class="section-label" style="text-align: left;">Contacto</p>
+                    <h2>¿Tenés alguna pregunta?</h2>
+                    <p>Escribinos y te contamos cómo SIGERU puede ayudar a tu municipio a gestionar la recolección de residuos de forma más ordenada y eficiente.</p>
+                    <form class="contacto-formulario">
+                        <input type="email" class="contacto-input" placeholder="Ingresá tu correo" required>
+                        <button type="submit" class="contacto-boton">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer id="pie-pagina">
+        <div class="pie-grid">
+            <div class="pie-marca">
+                <a href="#inicio" class="logo">
+                    <span class="logo-icono">(Logo)</span>
+                    SIGERU
+                </a>
+                <p>Sistema de gestión de residuos urbanos. Proyecto de Pasaje de Grado 2026, BT Tecnologías de la Información.</p>
+            </div>
+            <div class="pie-columna">
+                <h4>Navegación</h4>
+                <ul class="pie-links">
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#areas-sistema">Módulos</a></li>
+                    <li><a href="#resumen-sistema">Sobre el sistema</a></li>
+                    <li><a href="#usuarios-roles">Roles</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="pie-columna">
+                <h4>Proyecto</h4>
+                <ul class="pie-links">
+                    <li><a href="#">Documentación</a></li>
+                    <li><a href="#">Alcance</a></li>
+                    <li><a href="#">Equipo</a></li>
+                </ul>
+            </div>
+            <div class="pie-columna">
+                <h4>Enlaces</h4>
+                <ul class="pie-links">
+                    <li><a href="#">GitHub</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="pie-inferior">
+            <p>Copyright 2026</p>
+            <div class="pie-inferior-links">
+                <a href="#">Términos y condiciones</a>
+                <a href="#">Políticas de privacidad</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
