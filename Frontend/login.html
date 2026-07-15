@@ -3,18 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-     <link rel="stylesheet" href="style.css">
+    <title>Iniciar Sesión - SiGeRU</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <form id="form-login" method="POST">
+<body class="cuerpo-formulario">
 
-    <input type="email" id="correo" placeholder="Correo" class="email">
+    <div class="contenedor-formulario">
+        <div class="cabecera-formulario">
+            <div class="logo-reciclaje">♻️</div>
+            <h2>Iniciar Sesión</h2>
+            <p>Accede al panel de control de SiGeRU</p>
+        </div>
 
-    <input type="password" id="password" placeholder="Contraseña" class="contra">
+        <form id="form-login">
+            <div class="grupo-campo">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="ejemplo@sigeru.com" class="campo-entrada" required>
+            </div>
 
-    <button type="submit">Iniciar Sesion</button>
+            <div class="grupo-campo">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" class="campo-entrada" required>
+            </div>
 
-</form>
+            <button type="submit" id="btn-submit" class="boton-formulario">Entrar al Sistema</button>
+        </form>
+
+        <div class="enlaces-retorno">
+            <p>¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a></p>
+            <p style="margin-top: 10px;"><a href="principal.html">← Volver al inicio</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('form-login').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btn-submit');
+
+            // Obtener lista de usuarios registrados en localStorage
+            const usuariosGuardados = JSON.parse(localStorage.getItem('usuarios_db')) || [];
+            const usuarioEncontrado = usuariosGuardados.find(u => u.email === email && u.password === password);
+
+            if (usuarioEncontrado) {
+                // Feedback animado en botón
+                btn.innerHTML = '<span class="spinner"></span> Iniciando...';
+                btn.style.opacity = '0.8';
+                btn.disabled = true;
+
+                setTimeout(() => {
+                    localStorage.setItem('sesion_activa', JSON.stringify(usuarioEncontrado));
+                    window.location.href = 'panel.html';
+                }, 1000);
+            } else {
+                alert('Credenciales incorrectas o usuario no registrado.');
+            }
+        });
+    </script>
 </body>
 </html>

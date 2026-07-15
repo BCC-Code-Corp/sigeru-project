@@ -1,183 +1,581 @@
-/* GENERAL  */
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
+/* GENERAL */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-body{
-font-family:Arial, Helvetica, sans-serif;
-background:#f5f7f5;
-color:#1f2937;
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f7f5;
+    color: #1f2937;
 }
 
 /* HEADER */
-.encabezado{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:20px 60px;
-background:white;
-box-shadow:0 5px 15px rgba(0,0,0,.08);
+.encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,.08);
 }
 
-.logo-empresa{
-width:70px;
+.logo-empresa {
+    width: 70px;
+    height: auto;
+    object-fit: contain;
 }
 
-.empresa{
-order:1;
+.empresa {
+    order: 1;
 }
 
-.navegacion{
-order:2;
-flex:1;
-display:flex;
-justify-content:center;
-gap:30px;
+.navegacion {
+    order: 2;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
 }
 
-.acciones{
-order:3;
-display:flex;
-gap:15px;
+.navegacion .etiqueta-a {
+    color: #4b5563;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
 }
 
-.acciones button{
-padding:12px 0;
-border:none;
-background:none;
-color:#22c55e;
-font-size:16px;
-cursor:pointer;
-text-decoration:underline;
-text-decoration-color:#22c55e;
-transition:.3s;
+.navegacion .etiqueta-a:hover {
+    color: #166534;
+}
+
+.acciones {
+    order: 3;
+    display: flex;
+    gap: 15px;
+}
+
+.acciones button {
+    padding: 12px 20px;
+    border: 2px solid #22c55e;
+    background: none;
+    color: #22c55e;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: .3s;
+}
+
+.acciones .registrarse button {
+    background-color: #22c55e;
+    color: white;
+}
+
+.acciones button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
 }
 
 /* MAIN */
-.principal-empresa{
-width:90%;
-max-width:1200px;
-margin:auto;
+.principal-empresa {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
 }
 
 /* SECCIONES */
-section{
-padding:80px 0;
+section {
+    padding: 80px 0;
 }
 
 /* PRESENTACION */
-.presentacion{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:60px;
+.presentacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 60px;
 }
 
-.presentacion-texto{
-flex:1;
-position:center;
+.presentacion-texto {
+    flex: 1;
 }
 
-.presentacion-texto h2{
-font-size:48px;
-margin-bottom:20px;
-color:#166534;
+.presentacion-texto h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #166534;
+    text-align: left;
 }
 
-.presentacion-texto p{
-font-size:18px;
-color:#4b5563;
-line-height:1.6;
+.presentacion-texto p {
+    font-size: 18px;
+    color: #4b5563;
+    line-height: 1.6;
 }
 
-.img-presentacion{
-flex:1;
-width:100%;
-border-radius:20px;
-box-shadow:0 10px 30px rgba(0,0,0,.12);
+.img-presentacion {
+    flex: 1;
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.12);
 }
 
 /* PROBLEMA */
-.problema{
-background:white;
-padding:50px;
-border-radius:20px;
-box-shadow:0 8px 20px rgba(0,0,0,.08);
+.problema {
+    background: white;
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.08);
 }
 
-/*FUNCIONALIDADES*/
-.cuadricula-funcionalidades{
-display:grid;
-gap:25px;
-margin-top:40px;
+/* FUNCIONALIDADES */
+.cuadricula-funcionalidades {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
 }
 
-.tarjeta{
-background:white;
-padding:30px;
-border-radius:18px;
-box-shadow:0 10px 20px rgba(0,0,0,.08);
-transition:.3s;
+.tarjeta {
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 10px 20px rgba(0,0,0,.08);
+    transition: .3s;
 }
 
-/*  ROLES  */
-.cuadricula-roles{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:25px;
-margin-top:40px;
+.tarjeta:hover, .tarjeta-rol:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.12);
 }
 
-.tarjeta-rol{
-background:white;
-padding:30px;
-border-radius:18px;
-box-shadow:0 10px 20px rgba(0,0,0,.08);
-transition:.3s;
-}
-/*  TITULOS */
-h2{
-font-size:36px;
-margin-bottom:20px;
-color:#166534;
+/* ROLES */
+.cuadricula-roles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
 }
 
-h1{
-font-size:36px;
-margin-bottom:20px;
-color:#166534;
-text-align:center;
+.tarjeta-rol {
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 10px 20px rgba(0,0,0,.08);
+    transition: .3s;
 }
 
-h3{
-margin-bottom:10px;
-color:#166534;
+/* PASOS */
+.pasos {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
 }
 
-p{
-line-height:1.6;
+.pasos li {
+    background: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    font-size: 1.1rem;
 }
 
-/*FOOTER  */
-.pie-pagina{
-margin-top:80px;
-padding:40px;
-background:#166534;
-color:white;
-display:flex;
-justify-content:center;
-gap:100px;
-text-align:left;
+/* TITULOS */
+h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #166534;
 }
 
-.pie-pagina > div{
-display:flex;
-flex-direction:column;
-gap:10px;
+h3 {
+    margin-bottom: 10px;
+    color: #166534;
 }
 
-.pie-pagina h4{
-margin-bottom:10px;
+p {
+    line-height: 1.6;
+}
+
+/* FOOTER */
+.pie-pagina {
+    margin-top: 80px;
+    padding: 60px 40px;
+    background: #166534;
+    color: white;
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    text-align: left;
+}
+
+.pie-pagina > div {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pie-pagina h4 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.pie-pagina a {
+    color: #bbf7d0;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.pie-pagina a:hover {
+    color: white;
+}
+
+/* FORMULARIOS (LOGIN Y REGISTRO) */
+.cuerpo-formulario {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    padding: 20px;
+}
+
+.contenedor-formulario {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 450px;
+    padding: 40px 30px;
+    text-align: center;
+    border-top: 5px solid #166534;
+}
+
+.cabecera-formulario {
+    margin-bottom: 30px;
+}
+
+.logo-reciclaje {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.cabecera-formulario h2 {
+    color: #166534;
+    margin-bottom: 5px;
+}
+
+.cabecera-formulario p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.grupo-campo {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.grupo-campo label {
+    display: block;
+    font-size: 0.85rem;
+    color: #166534;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.campo-entrada {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.campo-entrada:focus {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.boton-formulario {
+    width: 100%;
+    background-color: #166534;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.boton-formulario:hover {
+    background-color: #14532d;
+}
+
+.boton-formulario:active {
+    transform: scale(0.98);
+}
+
+/* Spinner Animado */
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.enlaces-retorno {
+    margin-top: 25px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.enlaces-retorno a {
+    color: #166534;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.enlaces-retorno a:hover {
+    text-decoration: underline;
+}
+
+/* ========================================= */
+/* ESTILOS DEL PANEL DE CONTROL (REESTRUCTURADO) */
+/* ========================================= */
+
+.cuerpo-panel {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f0f4f1;
+    overflow-x: hidden;
+}
+
+/* Sidebar Estructurada Rígidamente */
+.sidebar {
+    width: 280px;
+    background-color: #166534;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+/* Clase para ocultar correctamente la barra de forma fluida */
+.sidebar.oculto {
+    margin-left: -280px;
+    box-shadow: none;
+}
+
+/* Perfil de Usuario */
+.sidebar-header {
+    text-align: center;
+    padding-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    margin-bottom: 25px;
+}
+
+.perfil-contenedor {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px;
+}
+
+.avatar-label {
+    cursor: pointer;
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Imagen circular perfecta y adaptada */
+.avatar-usuario {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #22c55e;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: transform 0.2s;
+}
+
+.avatar-usuario:hover {
+    transform: scale(1.05);
+}
+
+.editar-foto-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: #22c55e;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.sidebar-header h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-top: 10px;
+}
+
+/* Navegación del Panel */
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.sidebar-menu .item-menu {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    color: #c8e6c9;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.sidebar-menu .item-menu:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sidebar-menu .item-menu.activo {
+    background-color: #22c55e;
+    color: white;
+    font-weight: bold;
+}
+
+.sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 20px;
+}
+
+.cerrar-sesion {
+    color: #ffcdd2 !important;
+}
+
+.cerrar-sesion:hover {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #ef4444 !important;
+}
+
+/* Área de Contenido Principal del Panel */
+.contenido-panel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.barra-superior-panel {
+    background-color: white;
+    padding: 15px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+}
+
+.btn-toggle {
+    background-color: #166534;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.btn-toggle:hover {
+    background-color: #22c55e;
+}
+
+.logo-panel {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #166534;
+}
+
+/* Bienvenida */
+.seccion-bienvenida {
+    padding: 40px 40px 20px;
+}
+
+.bienvenida-fade {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #166534;
+    animation: fadeIn 1.2s ease-out;
+}
+
+.subtitulo-bienvenida {
+    font-size: 1.1rem;
+    color: #555;
+    margin-top: 8px;
+}
+
+/* Espacio de trabajo */
+.espacio-trabajo {
+    margin: 0 40px 40px;
+    background-color: white;
+    border-radius: 12px;
+    border: 2px dashed #cbd5e1;
+    flex-grow: 1;
+    min-height: 300px;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
