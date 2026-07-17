@@ -48,30 +48,45 @@
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btn-submit');
 
-            // Simulación de Base de Datos relacional usando una lista en localStorage
-            let usuariosGuardados = JSON.parse(localStorage.getItem('usuarios_db')) || [];
+            // Guardar el texto anterior del botón para recuperarlo en caso de error
+            const originalText = btn.innerHTML;
 
-            // VALIDACIÓN DE DUPLICADO (Evita registrar el mismo correo)
-            const existeCorreo = usuariosGuardados.some(u => u.email === email);
-            if (existeCorreo) {
-                alert('Este correo electrónico ya está registrado.');
-                return;
-            }
-
-            // Registrar nuevo usuario
-            const nuevoUsuario = { nombre: nombre, email: email, password: password };
-            usuariosGuardados.push(nuevoUsuario);
-            localStorage.setItem('usuarios_db', JSON.stringify(usuariosGuardados));
-
-            // Feedback visual animado en botón
-            btn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
+            // Animación visual inicial
+            btn.innerHTML = '<span class="spinner"></span> Procesando...';
             btn.style.opacity = '0.8';
             btn.disabled = true;
 
-            setTimeout(() => {
-                localStorage.setItem('sesion_activa', JSON.stringify(nuevoUsuario));
-                window.location.href = 'panel.html';
-            }, 1000);
+            // Petición fetch conectada al backend PHP
+            fetch('../Backend/registro.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nombre, email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    btn.innerHTML = '<span class="spinner"></span> Redirigiendo...';
+                    // Mantener la sesión activa en el navegador temporalmente para identificar al usuario en el panel
+                    localStorage.setItem('sesion_activa', JSON.stringify(data.usuario));
+                    setTimeout(() => {
+                        window.location.href = 'panel.html';
+                    }, 1000);
+                } else {
+                    alert(data.message);
+                    btn.innerHTML = originalText;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('No se pudo establecer conexión con el servidor.');
+                btn.innerHTML = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            });
         });
     </script>
 </body>
