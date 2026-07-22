@@ -22,12 +22,10 @@
 DROP TABLE IF EXISTS `camiones`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `camiones` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `matricula` varchar(20) NOT NULL,
-  `capacidad_carga` decimal(10,2) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `matricula` (`matricula`)
+CREATE TABLE IF NOT EXISTS camiones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    matricula VARCHAR(20) NOT NULL UNIQUE,
+    estado ENUM('Disponible', 'En Ruta') DEFAULT 'Disponible'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -54,15 +52,30 @@ DROP TABLE IF EXISTS `usuarios`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `usuarios` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  id INT AUTO_INCREMENT PRIMARY KEY,
   `nombre` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL UNIQUE,
   `password` varchar(255) NOT NULL,
-  `rol` enum('admin','operador') DEFAULT 'operador',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
+  `rol` ENUM('administrador', 'operario', 'cuadrilla', 'vecino') NOT NULL DEFAULT 'vecino',
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+CREATE TABLE IF NOT EXISTS incidencias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ubicacion VARCHAR(255) NOT NULL,
+    estado_contenedor VARCHAR(50) NOT NULL, -- Lleno, Desbordado, Roto
+    tipo_basura VARCHAR(50) NOT NULL,       -- Orgánica, Reciclable, etc.
+    estado_incidencia ENUM('abierta', 'en curso', 'incidencia solucionada') DEFAULT 'abierta',
+    cuadrilla_id INT NULL,
+    matricula_camion VARCHAR(20) NULL,
+    comentario_operario TEXT NULL,
+    FOREIGN KEY (matricula_camion) REFERENCES camiones(matricula) ON UPDATE CASCADE
+) ENGINE=InnoDB
+
+INSERT IGNORE INTO camiones (matricula, estado) VALUES 
+('STC-4321', 'Disponible'),
+('ABU-8899', 'En Ruta'),
+('MAA-5544', 'Disponible');
 
 --
 -- Dumping routines for database 'sigeru_db'
