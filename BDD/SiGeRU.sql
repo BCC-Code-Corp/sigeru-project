@@ -1,10 +1,10 @@
--- SiGeRU DDL generado a partir del diagrama ER (versión inicial)
+-- SiGeRU DDL generado a partir del diagrama ER (Versión Final Sincronizada)
 -- MySQL / MariaDB, InnoDB, UTF8MB4
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- BORRAR TABLAS (orden pensado para evitar violación de FKs al borrar)
+-- BORRAR TABLAS (orden inverso para evitar violaciones de FKs al borrar)
 DROP TABLE IF EXISTS ruta_contenedor;
 DROP TABLE IF EXISTS cuadrilla_operarios;
 DROP TABLE IF EXISTS mantenimientos;
@@ -26,7 +26,7 @@ DROP TABLE IF EXISTS centros;
 DROP TABLE IF EXISTS maquinarias;
 DROP TABLE IF EXISTS residuos;
 
--- TABLA: usuarios (entidad padre)
+-- 1. TABLA PADRE: usuarios
 CREATE TABLE usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nombre_completo VARCHAR(150) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE usuarios (
   actualizado_en TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Subtipos (uno-a-uno con usuarios) para reflejar el diagrama
+-- 2. SUBTIPOS DE USUARIO
 CREATE TABLE funcionarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   usuario_id INT NOT NULL UNIQUE,
@@ -62,7 +62,6 @@ CREATE TABLE admin_municipal (
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Operarios comunes (si el diagrama los modela como entidad separada)
 CREATE TABLE operarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   usuario_id INT NOT NULL UNIQUE,
@@ -70,7 +69,6 @@ CREATE TABLE operarios (
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Chofer y Recolector (pueden ser usuarios con rol específico)
 CREATE TABLE choferes (
   id INT AUTO_INCREMENT PRIMARY KEY,
   usuario_id INT NOT NULL UNIQUE,
@@ -86,7 +84,16 @@ CREATE TABLE recolectores (
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- CAMIONES
+-- 3. RECURSOS Y OPERATIVA BÁSICA (CENTROS, CAMIONES, RESIDUOS)
+CREATE TABLE centros (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre_centro VARCHAR(150) NOT NULL,
+  tipo_centro VARCHAR(100) NULL,
+  capacidad INT NULL,
+  tipo_residuo VARCHAR(100) NULL,
+  direccion VARCHAR(255) NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 CREATE TABLE camiones (
   id INT AUTO_INCREMENT PRIMARY KEY,
   matricula VARCHAR(20) NOT NULL UNIQUE,
@@ -97,18 +104,24 @@ CREATE TABLE camiones (
   ultimo_mantenimiento DATE NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- CUADRILLAS
+CREATE TABLE residuos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tipo_residuo VARCHAR(100) NOT NULL,
+  descripcion TEXT NULL,
+  tratamiento_recomendado VARCHAR(200) NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 4. CUADRILLAS Y OPERARIOS ASIGNADOS
 CREATE TABLE cuadrillas (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nombre_cuadrilla VARCHAR(150) NOT NULL,
   disponibilidad ENUM('disponible','en servicio','no disponible') DEFAULT 'disponible',
-  id_camion INT NULL,          -- cada cuadrilla puede usar un camión (opcional)
-  id_chofer INT NULL,          -- chofer asignado
+  id_camion INT NULL,
+  id_chofer INT NULL,
   FOREIGN KEY (id_camion) REFERENCES camiones(id) ON DELETE SET NULL,
   FOREIGN KEY (id_chofer) REFERENCES choferes(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Tabla intermedia cuadrilla <-> operarios (N a N)
 CREATE TABLE cuadrilla_operarios (
   cuadrilla_id INT NOT NULL,
   operario_id INT NOT NULL,
@@ -118,19 +131,18 @@ CREATE TABLE cuadrilla_operarios (
   FOREIGN KEY (operario_id) REFERENCES operarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- RUTAS
+-- 5. RUTAS Y CONTENEDORES
 CREATE TABLE rutas (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nombre_ruta VARCHAR(150) NULL,
   zona VARCHAR(150) NULL,
-  frecuencia VARCHAR(100) NULL, -- p. ej. "Diaria", "Semanal"
+  frecuencia VARCHAR(100) NULL,
   horario VARCHAR(100) NULL,
   id_cuadrilla INT NULL,
   activo BOOLEAN DEFAULT TRUE,
   FOREIGN KEY (id_cuadrilla) REFERENCES cuadrillas(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- CONTENEDORES
 CREATE TABLE contenedores (
   id INT AUTO_INCREMENT PRIMARY KEY,
   ubicacion VARCHAR(255) NOT NULL,
@@ -144,7 +156,6 @@ CREATE TABLE contenedores (
   FOREIGN KEY (id_centro) REFERENCES centros(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Tabla que relaciona rutas con contenedores (orden dentro de la ruta posible)
 CREATE TABLE ruta_contenedor (
   ruta_id INT NOT NULL,
   contenedor_id INT NOT NULL,
@@ -154,7 +165,7 @@ CREATE TABLE ruta_contenedor (
   FOREIGN KEY (contenedor_id) REFERENCES contenedores(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- RECLAMOS (hechos por vecinos)
+-- 6. GESTIÓN DE INCIDENCIAS, RECLAMOS Y REPARACIONES
 CREATE TABLE reclamos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   vecino_id INT NOT NULL,
@@ -165,15 +176,14 @@ CREATE TABLE reclamos (
   FOREIGN KEY (vecino_id) REFERENCES vecinos(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- INCIDENCIAS (pueden referenciar contenedor, cuadrilla, camión, reclamo)
 CREATE TABLE incidencias (
   id INT AUTO_INCREMENT PRIMARY KEY,
   id_contenedor INT NULL,
   reclamo_id INT NULL,
   ubicacion VARCHAR(255) NULL,
-  estado_contenedor VARCHAR(50) NULL, -- p. ej. Lleno, Desbordado, Roto
-  tipo_incidencia VARCHAR(100) NULL,   -- p. ej. "Desbordado", "Vandalismo"
-  tipo_basura VARCHAR(50) NULL,        -- Orgánica, Reciclable, etc.
+  estado_contenedor VARCHAR(50) NULL,
+  tipo_incidencia VARCHAR(100) NULL,
+  tipo_basura VARCHAR(50) NULL,
   estado_incidencia ENUM('abierta','en curso','incidencia solucionada') DEFAULT 'abierta',
   cuadrilla_id INT NULL,
   matricula_camion VARCHAR(20) NULL,
@@ -186,7 +196,6 @@ CREATE TABLE incidencias (
   FOREIGN KEY (matricula_camion) REFERENCES camiones(matricula) ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- REPARACIONES (relacionadas a contenedores u otros activos)
 CREATE TABLE reparaciones (
   id INT AUTO_INCREMENT PRIMARY KEY,
   id_contenedor INT NULL,
@@ -200,17 +209,7 @@ CREATE TABLE reparaciones (
   FOREIGN KEY (id_contenedor) REFERENCES contenedores(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- CENTROS (puntos de acopio, plantas, depósitos)
-CREATE TABLE centros (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre_centro VARCHAR(150) NOT NULL,
-  tipo_centro VARCHAR(100) NULL, -- p. ej. "Planta de reciclaje", "Depósito"
-  capacidad INT NULL,
-  tipo_residuo VARCHAR(100) NULL,
-  direccion VARCHAR(255) NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- MAQUINARIAS
+-- 7. MAQUINARIAS Y MANTENIMIENTOS
 CREATE TABLE maquinarias (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nombre_maquina VARCHAR(150) NOT NULL,
@@ -221,7 +220,6 @@ CREATE TABLE maquinarias (
   FOREIGN KEY (id_maquinaria_padre) REFERENCES maquinarias(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- MANTENIMIENTOS (para equipamiento / maquinarias / camiones)
 CREATE TABLE mantenimientos (
   id INT AUTO_INCREMENT PRIMARY KEY,
   tipo_mantenimiento VARCHAR(100) NULL,
@@ -230,22 +228,14 @@ CREATE TABLE mantenimientos (
   prox_mantenimiento DATE NULL,
   id_maquinaria INT NULL,
   id_camion INT NULL,
-  asignado_por INT NULL, -- admin_municipal.usuario_id o funcionario.usuario_id
+  asignado_por INT NULL,
   creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_maquinaria) REFERENCES maquinarias(id) ON DELETE SET NULL,
   FOREIGN KEY (id_camion) REFERENCES camiones(id) ON DELETE SET NULL,
   FOREIGN KEY (asignado_por) REFERENCES usuarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- RESIDUOS (tipos de residuos y atributos)
-CREATE TABLE residuos (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  tipo_residuo VARCHAR(100) NOT NULL,
-  descripcion TEXT NULL,
-  tratamiento_recomendado VARCHAR(200) NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Enlaces extra / índices útiles
+-- Índices útiles para optimización de consultas
 CREATE INDEX idx_contenedor_tipo ON contenedores(tipo_residuo);
 CREATE INDEX idx_ruta_zona ON rutas(zona);
 CREATE INDEX idx_incidencia_estado ON incidencias(estado_incidencia);
