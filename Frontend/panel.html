@@ -5,117 +5,477 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Control - SiGeRU</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body.cuerpo-panel {
+            display: flex;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .sidebar {
+            width: 260px;
+            min-width: 260px;
+            background-color: #14532d;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+            transition: margin-left 0.3s ease;
+            z-index: 100;
+        }
+
+        .sidebar.oculto {
+            margin-left: -260px;
+        }
+
+        .contenido-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow-x: hidden;
+        }
+
+        .barra-superior-panel {
+            background-color: white;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .btn-toggle {
+            background: #166534;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .titulo-grupo-menu { 
+            display: block; 
+            font-size: 0.75rem; 
+            color: #a3e635; 
+            font-weight: bold; 
+            padding: 15px 15px 5px 15px; 
+            text-transform: uppercase; 
+        }  
+
+        .tabla-api { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+            background: white; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+        }
+
+        .tabla-api th, .tabla-api td { 
+            padding: 12px 15px; 
+            text-align: left; 
+            border-bottom: 1px solid #e2e8f0; 
+            font-size: 0.9rem; 
+        }
+
+        .tabla-api th { 
+            background-color: #166534; 
+            color: white; 
+        }
+
+        .formulario-interno { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #e2e8f0; 
+            margin-bottom: 25px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .campo-entrada { 
+            padding: 10px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 6px; 
+            font-size: 0.9rem; 
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-mini { 
+            background: #166534; 
+            color: white; 
+            border: none; 
+            padding: 10px 18px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+
+        .btn-mini:hover { background: #15803d; }
+
+        .item-menu {
+            display: block;
+            padding: 10px 15px;
+            color: white;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .item-menu:hover, .item-menu.activo {
+            background-color: #166534;
+        }
+    </style>
 </head>
 <body class="cuerpo-panel">
 
-    <!-- Barra lateral de navegación (Ocultable y estructurada de forma vertical) -->
+    <!-- BARRA LATERAL -->
     <aside id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <!-- Sección del perfil modificable con compresión de imagen -->
-            <div class="perfil-contenedor">
-                <label for="input-avatar" class="avatar-label">
-                    <img id="avatar-img" src="https://picsum.photos/100" alt="Avatar Usuario" class="avatar-usuario">
-                    <span class="editar-foto-badge">✏️</span>
-                </label>
-                <input type="file" id="input-avatar" accept="image/*" style="display: none;">
+        <div style="padding: 20px; text-align: center; border-bottom: 1px solid #166534;">
+            <div style="position: relative; display: inline-block;">
+                <img id="avatar-img" src="https://picsum.photos/80" alt="Avatar" style="width: 75px; height: 75px; border-radius: 50%; border: 3px solid #22c55e; object-fit: cover;">
+                <label for="input-foto" style="position: absolute; bottom: 0; right: 0; background: #22c55e; color: black; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" title="Cambiar foto">✏️</label>
+                <input type="file" id="input-foto" accept="image/*" style="display: none;">
             </div>
-            <h4 id="sidebar-nombre">Usuario</h4>
+
+            <h4 id="sidebar-nombre" style="margin: 8px 0 2px 0;">Usuario</h4>
+            <p id="sidebar-cedula" style="font-size: 0.8rem; color: #a3e635; margin: 0 0 8px 0; font-weight: bold;">C.I.: Cargando...</p>
+            <span id="sidebar-rol" style="background: #22c55e; color: #052e16; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">VECINO</span>
         </div>
 
-        <nav class="sidebar-menu">
-            <a href="#" class="item-menu activo">📊 Vista General</a>
-            <a href="#" class="item-menu">🚛 Rutas de Camiones</a>
-            <a href="#" class="item-menu">🗑️ Contenedores</a>
-            <a href="#" class="item-menu">⚠️ Incidencias</a>
-            <a href="#" class="item-menu">⚙️ Configuración</a>
+        <nav class="sidebar-menu" style="flex: 1; overflow-y: auto;">
+            <a href="#" id="menu-vista" class="item-menu activo">📊 Vista General</a>
+
+            <div id="seccion-vecino" style="display: none;">
+                <span class="titulo-grupo-menu">Sección Vecino</span>
+                <a href="#" id="menu-reportar-incidencia" class="item-menu">⚠️ Reportar e Incidencias</a>
+            </div>
+
+            <div id="seccion-operario" style="display: none;">
+                <span class="titulo-grupo-menu">Sección Operario</span>
+                <a href="#" id="menu-monitoreo-flota" class="item-menu">🚛 Monitoreo de Flota</a>
+            </div>
+
+            <div id="seccion-cuadrilla" style="display: none;">
+                <span class="titulo-grupo-menu">Sección Cuadrilla</span>
+                <a href="#" id="menu-recibir-incidencias" class="item-menu">📥 Recibir Incidencias</a>
+                <a href="#" id="menu-alta-contenedores" class="item-menu">➕ Alta de Contenedores</a>
+            </div>
+
+            <!-- SECCIÓN ADMINISTRADOR CON VER INCIDENCIAS REUBICADO -->
+            <div id="seccion-admin" style="display: none;">
+                <span class="titulo-grupo-menu">Sección Administrador</span>
+                <a href="#" id="menu-roles" class="item-menu">🔑 Gestionar Roles</a>
+                <a href="#" id="menu-ver-incidencias" class="item-menu">👁️ Ver Incidencias</a>
+            </div>
         </nav>
 
-        <div class="sidebar-footer">
-            <a href="principal.html" onclick="localStorage.removeItem('sesion_activa')" class="item-menu cerrar-sesion">🚪 Cerrar Sesión</a>
+        <div style="padding: 15px; border-top: 1px solid #166534;">
+            <a href="principal.html" onclick="localStorage.removeItem('sesion_activa')" style="color: #fca5a5; text-decoration: none; font-weight: bold;">🚪 Cerrar Sesión</a>
         </div>
     </aside>
 
-    <!-- Contenido Principal -->
     <main class="contenido-panel">
         <header class="barra-superior-panel">
-            <!-- Botón para ocultar/mostrar el menú -->
             <button id="toggle-sidebar" class="btn-toggle">☰ Menú</button>
-            <div class="logo-panel">♻️ SiGeRU</div>
+            <div style="font-weight: bold; color: #166534; font-size: 1.2rem;">♻️ SiGeRU</div>
         </header>
 
-        <section class="seccion-bienvenida">
-            <h1 id="texto-bienvenida" class="bienvenida-fade">¡Bienvenido!</h1>
-            <p class="subtitulo-bienvenida">Tu sistema de control ambiental está listo y al día.</p>
+        <section style="padding: 25px 25px 0 25px;">
+            <h1 id="texto-bienvenida" style="margin: 0; color: #14532d;">¡Bienvenido!</h1>
+            <p style="color: #64748b; margin-top: 5px;">Módulo de gestión ambiental unificado.</p>
         </section>
 
-        <!-- Espacio de trabajo del Panel (En blanco para futuras funciones) -->
-        <div class="espacio-trabajo"></div>
+        <div id="espacio-trabajo" style="padding: 25px; flex: 1;">
+            <div style="background-color: white; border-radius: 12px; border: 2px dashed #cbd5e1; height: 250px; display: flex; align-items: center; justify-content: center; color: #64748b;">
+                Selecciona una opción del menú lateral para comenzar.
+            </div>
+        </div>
     </main>
 
     <script>
-        // Cargar datos de la sesión guardada
         const sesion = JSON.parse(localStorage.getItem('sesion_activa'));
-        const textoBienvenida = document.getElementById('texto-bienvenida');
-        const sidebarNombre = document.getElementById('sidebar-nombre');
+        const espacio = document.getElementById('espacio-trabajo');
 
-        if (sesion && sesion.nombre) {
-            textoBienvenida.innerText = `¡Bienvenido, ${sesion.nombre}!`;
-            sidebarNombre.innerText = sesion.nombre;
-        } else {
-            textoBienvenida.innerText = `¡Bienvenido, Operario!`;
+        function removerActivos() { 
+            document.querySelectorAll('.item-menu').forEach(l => l.classList.remove('activo')); 
         }
 
-        // Mostrar / Ocultar Sidebar
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggle-sidebar');
+        if (sesion && sesion.email) {
+            document.getElementById('texto-bienvenida').innerText = `¡Bienvenido, ${sesion.nombre}!`;
+            document.getElementById('sidebar-nombre').innerText = sesion.nombre;
 
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('oculto');
-        });
+            fetch('../Backend/obtener_usuario.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: sesion.email })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.usuario) {
+                    const cedulaBDD = data.usuario.cedula || 'Sin registrar';
+                    document.getElementById('sidebar-cedula').innerText = `C.I.: ${cedulaBDD}`;
+                    
+                    const rolBDD = (data.usuario.rol || 'vecino').toLowerCase();
+                    document.getElementById('sidebar-rol').innerText = rolBDD.toUpperCase();
+                    
+                    sesion.cedula = cedulaBDD;
+                    sesion.rol = rolBDD;
+                    localStorage.setItem('sesion_activa', JSON.stringify(sesion));
+                } else {
+                    document.getElementById('sidebar-cedula').innerText = 'C.I.: Sin registrar';
+                }
+            })
+            .catch(err => {
+                console.error("Error al consultar MySQL:", err);
+                document.getElementById('sidebar-cedula').innerText = 'C.I.: Sin registrar';
+            });
 
-        // Modificar Foto de Perfil con compresión y recorte automático a un tamaño de 100x100px
-        const inputAvatar = document.getElementById('input-avatar');
-        const avatarImg = document.getElementById('avatar-img');
+            if (sesion.foto) {
+                document.getElementById('avatar-img').src = sesion.foto;
+            }
 
-        const avatarGuardado = localStorage.getItem('avatar_usuario');
-        if (avatarGuardado) {
-            avatarImg.src = avatarGuardado;
+            const rol = (sesion.rol || 'vecino').toLowerCase();
+            if (rol === 'admin' || rol === 'administrador') {
+                document.getElementById('seccion-admin').style.display = 'block';
+                document.getElementById('seccion-vecino').style.display = 'block';
+                document.getElementById('seccion-operario').style.display = 'block';
+                document.getElementById('seccion-cuadrilla').style.display = 'block';
+            } else if (rol === 'operario') {
+                document.getElementById('seccion-operario').style.display = 'block';
+            } else if (rol === 'cuadrilla') {
+                document.getElementById('seccion-cuadrilla').style.display = 'block';
+            } else {
+                document.getElementById('seccion-vecino').style.display = 'block';
+            }
         }
 
-        inputAvatar.addEventListener('change', function(e) {
+        document.getElementById('input-foto').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        // Creación de un canvas para redimensionar y recortar la imagen de manera perfecta
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        // Definir tamaño de perfil estricto (100x100px)
-                        const size = 100;
-                        canvas.width = size;
-                        canvas.height = size;
-
-                        // Calcular recorte cuadrado proporcional
-                        const minDim = Math.min(img.width, img.height);
-                        const sx = (img.width - minDim) / 2;
-                        const sy = (img.height - minDim) / 2;
-
-                        // Dibujar la imagen recortada en el canvas
-                        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-
-                        // Exportar imagen optimizada en formato JPEG de bajo peso
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                        avatarImg.src = dataUrl;
-                        localStorage.setItem('avatar_usuario', dataUrl);
-                    };
-                    img.src = event.target.result;
+                reader.onload = function(evt) {
+                    const nuevaFoto = evt.target.result;
+                    document.getElementById('avatar-img').src = nuevaFoto;
+                    if (sesion) {
+                        sesion.foto = nuevaFoto;
+                        localStorage.setItem('sesion_activa', JSON.stringify(sesion));
+                    }
                 };
                 reader.readAsDataURL(file);
             }
         });
+
+        document.getElementById('toggle-sidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('oculto');
+        });
+
+        // 1. REGISTRAR E INCIDENCIAS (VECINO)
+        const linkVecino = document.getElementById('menu-reportar-incidencia');
+        if (linkVecino) {
+            linkVecino.addEventListener('click', function(e) {
+                e.preventDefault();
+                removerActivos();
+                this.classList.add('activo');
+                
+                espacio.innerHTML = `
+                    <div class="formulario-interno">
+                        <h3>⚠️ Reportar Incidencia de Contenedor</h3>
+                        <form id="form-nuevo-reporte" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px;">
+                            <div>
+                                <label style="font-weight:bold; font-size:0.85rem;">Ubicación:</label>
+                                <input type="text" id="inp-ubicacion" placeholder="Ej: Av. Italia y Comercio" class="campo-entrada" required>
+                            </div>
+                            <div>
+                                <label style="font-weight:bold; font-size:0.85rem;">Estado del Contenedor:</label>
+                                <select id="inp-estado" class="campo-entrada" required>
+                                    <option value="Lleno">Lleno</option>
+                                    <option value="Desbordado">Desbordado</option>
+                                    <option value="Roto / Dañado">Roto / Dañado</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-weight:bold; font-size:0.85rem;">Tipo de Basura:</label>
+                                <select id="inp-tipo" class="campo-entrada" required>
+                                    <option value="Normal / Orgánica">Normal / Orgánica</option>
+                                    <option value="Reciclable">Reciclable</option>
+                                </select>
+                            </div>
+                            <button type="button" id="btn-enviar-incidencia" class="btn-mini" style="align-self: flex-start;">Enviar Reporte Urbano</button>
+                        </form>
+                    </div>
+
+                    <h3>📋 Listado de Incidencias Registradas</h3>
+                    <div id="contenedor-tabla-incidencias">Cargando incidencias...</div>
+                `;
+
+                obtenerYListarIncidencias();
+
+                document.getElementById("btn-enviar-incidencia").addEventListener("click", function() {
+                    const ubi = document.getElementById("inp-ubicacion").value;
+                    const est = document.getElementById("inp-estado").value;
+                    const tip = document.getElementById("inp-tipo").value;
+
+                    if (!ubi) {
+                        alert("Por favor ingrese la ubicación.");
+                        return;
+                    }
+
+                    fetch("../Backend/incidencias.php", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            accion: "crear",
+                            ubicacion: ubi,
+                            estado_contenedor: est,
+                            tipo_basura: tip
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(respuesta => {
+                        alert(respuesta.message || "Incidencia registrada exitosamente.");
+                        document.getElementById("inp-ubicacion").value = "";
+                        obtenerYListarIncidencias();
+                    })
+                    .catch(err => alert("Error al conectar con la API de incidencias."));
+                });
+            });
+        }
+
+        // 2. VER INCIDENCIAS (ADMINISTRADOR)
+        const linkVerIncidencias = document.getElementById('menu-ver-incidencias');
+        if (linkVerIncidencias) {
+            linkVerIncidencias.addEventListener('click', function(e) {
+                e.preventDefault();
+                removerActivos();
+                this.classList.add('activo');
+
+                espacio.innerHTML = `
+                    <h3>👁️ Control e Inspección de Incidencias</h3>
+                    <p style="color: #64748b;">Listado general de reportes registrados en la plataforma.</p>
+                    <div id="contenedor-tabla-incidencias">Cargando incidencias...</div>
+                `;
+
+                obtenerYListarIncidencias();
+            });
+        }
+
+        // FUNCIÓN COMPARTIDA PARA MOSTRAR TODAS LAS INCIDENCIAS CON SUS ATRIBUTOS
+        function obtenerYListarIncidencias() {
+            fetch("../Backend/incidencias.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ accion: "listar" })
+            })
+            .then(res => res.json())
+            .then(respuesta => {
+                const divTabla = document.getElementById("contenedor-tabla-incidencias");
+                if (!respuesta.data || respuesta.data.length === 0) {
+                    divTabla.innerHTML = "<p style='color:#64748b;'>No hay incidencias registradas aún.</p>";
+                    return; 
+                }
+
+                let html = `
+                    <table class="tabla-api">
+                        <thead>
+                            <tr>
+                                <th># ID</th>
+                                <th>Ubicación</th>
+                                <th>Estado Contenedor</th>
+                                <th>Tipo Basura</th>
+                                <th>Estado Incidencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                respuesta.data.forEach(inc => {
+                    html += `
+                        <tr>
+                            <td>#${inc.id}</td>
+                            <td><strong>${inc.ubicacion}</strong></td>
+                            <td>${inc.estado_contenedor}</td>
+                            <td>${inc.tipo_basura}</td>
+                            <td><span style="background:#fee2e2; color:#991b1b; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">${(inc.estado_incidencia || 'ABIERTA').toUpperCase()}</span></td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table>`;
+                divTabla.innerHTML = html;
+            })
+            .catch(err => {
+                const divTabla = document.getElementById("contenedor-tabla-incidencias");
+                if(divTabla) divTabla.innerHTML = "<p style='color:red;'>Error al cargar las incidencias desde el servidor.</p>";
+            });
+        }
+
+        // 3. ROLES (ADMINISTRADOR)
+        const linkRoles = document.getElementById('menu-roles');
+        if (linkRoles) {
+            linkRoles.addEventListener('click', function(e) {
+                e.preventDefault();
+                removerActivos();
+                this.classList.add('activo');
+
+                espacio.innerHTML = `
+                    <div class="formulario-interno">
+                        <h3>🔑 Asignar Roles de Usuario</h3>
+                        <form id="form-actualizar-rol" style="display: flex; flex-direction: column; gap: 12px; max-width: 400px;">
+                            <div>
+                                <label style="font-weight: bold; display:block; margin-bottom:5px;">Email del Usuario:</label>
+                                <input type="email" id="rol-email" placeholder="usuario@gmail.com" class="campo-entrada" required>
+                            </div>
+                            <div>
+                                <label style="font-weight: bold; display:block; margin-bottom:5px;">Nuevo Rol:</label>
+                                <select id="rol-nuevo" class="campo-entrada">
+                                    <option value="vecino">Vecino</option>
+                                    <option value="operario">Operario</option>
+                                    <option value="cuadrilla">Cuadrilla</option>
+                                    <option value="administrador">Administrador</option>
+                                </select>
+                            </div>
+                            <button type="button" id="btn-cambiar-rol" class="btn-mini" style="align-self: flex-start;">Actualizar Rol</button>
+                        </form>
+                    </div>
+                `;
+
+                document.getElementById('btn-cambiar-rol').addEventListener('click', function() {
+                    const email = document.getElementById('rol-email').value.trim();
+                    const nuevoRol = document.getElementById('rol-nuevo').value;
+
+                    if (!email) {
+                        alert("Ingrese un email válido.");
+                        return;
+                    }
+
+                    fetch('../Backend/actualizar_rol.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email_destino: email,
+                            nuevo_rol: nuevoRol
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.status === 'success') {
+                            document.getElementById('rol-email').value = "";
+                        }
+                    })
+                    .catch(err => alert("Error de red o endpoint no encontrado."));
+                });
+            });
+        }
     </script>
 </body>
 </html>

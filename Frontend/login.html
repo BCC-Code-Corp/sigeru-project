@@ -42,23 +42,43 @@
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btn-submit');
 
-            // Obtener lista de usuarios registrados en localStorage
-            const usuariosGuardados = JSON.parse(localStorage.getItem('usuarios_db')) || [];
-            const usuarioEncontrado = usuariosGuardados.find(u => u.email === email && u.password === password);
+            const originalText = btn.innerHTML;
 
-            if (usuarioEncontrado) {
-                // Feedback animado en botón
-                btn.innerHTML = '<span class="spinner"></span> Iniciando...';
-                btn.style.opacity = '0.8';
-                btn.disabled = true;
+            // Feedback animado en botón
+            btn.innerHTML = '<span class="spinner"></span> Verificando...';
+            btn.style.opacity = '0.8';
+            btn.disabled = true;
 
-                setTimeout(() => {
-                    localStorage.setItem('sesion_activa', JSON.stringify(usuarioEncontrado));
-                    window.location.href = 'panel.html';
-                }, 1000);
-            } else {
-                alert('Credenciales incorrectas o usuario no registrado.');
-            }
+            // CORRECCIÓN: Apunta a la subcarpeta correcta del backend
+            fetch('../Backend/login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    btn.innerHTML = '<span class="spinner"></span> Iniciando...';
+                    localStorage.setItem('sesion_activa', JSON.stringify(data.usuario));
+                    setTimeout(() => {
+                        window.location.href = 'panel.html';
+                    }, 1000);
+                } else {
+                    alert(data.message);
+                    btn.innerHTML = originalText;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('No se pudo establecer conexión con el servidor.');
+                btn.innerHTML = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            });
         });
     </script>
 </body>

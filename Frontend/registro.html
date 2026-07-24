@@ -22,6 +22,11 @@
             </div>
 
             <div class="grupo-campo">
+                <label for="cedula">Cédula de Identidad</label>
+                <input type="text" id="cedula" name="cedula" placeholder="1.234.567-8" class="campo-entrada" required>
+            </div>
+
+            <div class="grupo-campo">
                 <label for="email">Correo electrónico</label>
                 <input type="email" id="email" name="email" placeholder="ejemplo@sigeru.com" class="campo-entrada" required>
             </div>
@@ -41,37 +46,65 @@
     </div>
 
     <script>
+        // Validación de Cédula Uruguaya en el Frontend
+        function validarCedulaUruguaya(ci) {
+            const clean = ci.replace(/[^0-9]/g, '').padStart(8, '0');
+            if (clean.length !== 8) return false;
+            const factors = [2, 9, 8, 7, 6, 3, 4];
+            let sum = 0;
+            for (let i = 0; i < 7; i++) {
+                sum += parseInt(clean[i]) * factors[i];
+            }
+            const rem = sum % 10;
+            const check = (rem === 0) ? 0 : (10 - rem);
+            return check === parseInt(clean[7]);
+        }
+
         document.getElementById('form-registro').addEventListener('submit', function(e) {
             e.preventDefault();
             const nombre = document.getElementById('nombre').value.trim();
+            const cedula = document.getElementById('cedula').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btn-submit');
 
-            // Simulación de Base de Datos relacional usando una lista en localStorage
-            let usuariosGuardados = JSON.parse(localStorage.getItem('usuarios_db')) || [];
-
-            // VALIDACIÓN DE DUPLICADO (Evita registrar el mismo correo)
-            const existeCorreo = usuariosGuardados.some(u => u.email === email);
-            if (existeCorreo) {
-                alert('Este correo electrónico ya está registrado.');
+            if (!validarCedulaUruguaya(cedula)) {
+                alert('La Cédula de Identidad ingresada no es válida.');
                 return;
             }
 
-            // Registrar nuevo usuario
-            const nuevoUsuario = { nombre: nombre, email: email, password: password };
-            usuariosGuardados.push(nuevoUsuario);
-            localStorage.setItem('usuarios_db', JSON.stringify(usuariosGuardados));
-
-            // Feedback visual animado en botón
-            btn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> Procesando...';
             btn.style.opacity = '0.8';
             btn.disabled = true;
 
-            setTimeout(() => {
-                localStorage.setItem('sesion_activa', JSON.stringify(nuevoUsuario));
-                window.location.href = 'panel.html';
-            }, 1000);
+            fetch('../Backend/registro.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre, cedula, email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    btn.innerHTML = '<span class="spinner"></span> Redirigiendo...';
+                    localStorage.setItem('sesion_activa', JSON.stringify(data.usuario));
+                    setTimeout(() => {
+                        window.location.href = 'panel.html';
+                    }, 1000);
+                } else {
+                    alert(data.message);
+                    btn.innerHTML = originalText;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('No se pudo establecer conexión con el servidor.');
+                btn.innerHTML = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            });
         });
     </script>
 </body>
