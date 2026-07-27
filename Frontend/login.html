@@ -52,7 +52,7 @@
             btn.style.opacity = '0.8';
             btn.disabled = true;
 
-            // CORRECCIÓN: Apunta a la subcarpeta correcta del backend
+            // Petición fetch conectada al login PHP
             fetch('../Backend/login.php', {
                 method: 'POST',
                 headers: {

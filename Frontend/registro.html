@@ -68,25 +68,27 @@
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btn-submit');
 
-            if (!validarCedulaUruguaya(cedula)) {
-                alert('La Cédula de Identidad ingresada no es válida.');
-                return;
-            }
-
+            // Guardar el texto anterior del botón para recuperarlo en caso de error
             const originalText = btn.innerHTML;
+
+            // Animación visual inicial
             btn.innerHTML = '<span class="spinner"></span> Procesando...';
             btn.style.opacity = '0.8';
             btn.disabled = true;
 
+            // Petición fetch conectada al backend PHP
             fetch('../Backend/registro.php', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre, cedula, email, password })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ nombre, email, password })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
                     btn.innerHTML = '<span class="spinner"></span> Redirigiendo...';
+                    // Mantener la sesión activa en el navegador temporalmente para identificar al usuario en el panel
                     localStorage.setItem('sesion_activa', JSON.stringify(data.usuario));
                     setTimeout(() => {
                         window.location.href = 'panel.html';

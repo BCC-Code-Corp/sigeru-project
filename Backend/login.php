@@ -1,6 +1,5 @@
 <?php
 header('Content-Type: application/json');
-// CORRECCIÓN: Subimos dos niveles para encontrar el archivo de conexión
 require_once 'conexion.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
@@ -14,8 +13,8 @@ $email = trim($input['email']);
 $password = $input['password'];
 
 try {
-    // MODIFICACIÓN MÍNIMA: Agregamos "rol" e "id" a la consulta de selección[cite: 3]
-    $stmt = $pdo->prepare("SELECT id, nombre, email, password, rol FROM usuarios WHERE email = ?");
+    // Buscar usuario en la base de datos
+    $stmt = $pdo->prepare("SELECT nombre, email, password FROM usuarios WHERE email = ?");
     $stmt->execute([$email]);
     $usuario = $stmt->fetch();
 
@@ -25,10 +24,8 @@ try {
             "status" => "success",
             "message" => "Sesión iniciada con éxito.",
             "usuario" => [
-                "id" => $usuario['id'], // Necesario para validar acciones de admin[cite: 3]
                 "nombre" => $usuario['nombre'],
-                "email" => $usuario['email'],
-                "rol" => $usuario['rol'] // MODIFICACIÓN MÍNIMA: Enviamos el rol al cliente[cite: 3]
+                "email" => $usuario['email']
             ]
         ]);
     } else {
