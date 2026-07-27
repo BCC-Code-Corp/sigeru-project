@@ -47,20 +47,20 @@
             </div>
         </nav>
 
-        <div class="sidebar-footer">
-            <a href="principal.html" onclick="localStorage.removeItem('sesion_activa')" class="item-menu cerrar-sesion">🚪 Cerrar Sesión</a>
+        <div style="padding: 15px; border-top: 1px solid #166534;">
+            <a href="principal.html" onclick="localStorage.removeItem('sesion_activa')" style="color: #fca5a5; text-decoration: none; font-weight: bold;">🚪 Cerrar Sesión</a>
         </div>
     </aside>
 
     <main class="contenido-panel">
         <header class="barra-superior-panel">
             <button id="toggle-sidebar" class="btn-toggle">☰ Menú</button>
-            <div class="logo-panel">♻️ SiGeRU</div>
+            <div style="font-weight: bold; color: #166534; font-size: 1.2rem;">♻️ SiGeRU</div>
         </header>
 
-        <section class="seccion-bienvenida">
-            <h1 id="texto-bienvenida" class="bienvenida-fade">¡Bienvenido!</h1>
-            <p class="subtitulo-bienvenida">Tu sistema de control ambiental está listo y al día.</p>
+        <section style="padding: 25px 25px 0 25px;">
+            <h1 id="texto-bienvenida" style="margin: 0; color: #14532d;">¡Bienvenido!</h1>
+            <p style="color: #64748b; margin-top: 5px;">Módulo de gestión ambiental unificado.</p>
         </section>
 
         <!-- Espacio de trabajo dinámico enlazado a las APIs -->
@@ -264,7 +264,7 @@
         const avatarGuardado = localStorage.getItem('avatar_usuario');
         if (avatarGuardado) avatarImg.src = avatarGuardado;
 
-        inputAvatar.addEventListener('change', function(e) {
+        document.getElementById('input-foto').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -288,6 +288,209 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        document.getElementById('toggle-sidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('oculto');
+        });
+
+        // 1. REGISTRAR E INCIDENCIAS (VECINO)
+        const linkVecino = document.getElementById('menu-reportar-incidencia');
+        if (linkVecino) {
+            linkVecino.addEventListener('click', function(e) {
+                e.preventDefault();
+                removerActivos();
+                this.classList.add('activo');
+                
+                espacio.innerHTML = `
+                    <div class="formulario-interno">
+                        <h3>⚠️ Reportar Incidencia de Contenedor</h3>
+                        <form id="form-nuevo-reporte" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px;">
+                            <div>
+                                <label style="font-weight:bold; font-size:0.85rem;">Ubicación:</label>
+                                <input type="text" id="inp-ubicacion" placeholder="Ej: Av. Italia y Comercio" class="campo-entrada" required>
+                            </div>
+                            <div>
+                                <label style="font-weight:bold; font-size:0.85rem;">Estado del Contenedor:</label>
+                                <select id="inp-estado" class="campo-entrada" required>
+                                    <option value="Lleno">Lleno</option>
+                                    <option value="Desbordado">Desbordado</option>
+                                    <option value="Roto / Dañado">Roto / Dañado</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-weight:bold; font-size:0.85rem;">Tipo de Basura:</label>
+                                <select id="inp-tipo" class="campo-entrada" required>
+                                    <option value="Normal / Orgánica">Normal / Orgánica</option>
+                                    <option value="Reciclable">Reciclable</option>
+                                </select>
+                            </div>
+                            <button type="button" id="btn-enviar-incidencia" class="btn-mini" style="align-self: flex-start;">Enviar Reporte Urbano</button>
+                        </form>
+                    </div>
+
+                    <h3>📋 Listado de Incidencias Registradas</h3>
+                    <div id="contenedor-tabla-incidencias">Cargando incidencias...</div>
+                `;
+
+                obtenerYListarIncidencias();
+
+                document.getElementById("btn-enviar-incidencia").addEventListener("click", function() {
+                    const ubi = document.getElementById("inp-ubicacion").value;
+                    const est = document.getElementById("inp-estado").value;
+                    const tip = document.getElementById("inp-tipo").value;
+
+                    if (!ubi) {
+                        alert("Por favor ingrese la ubicación.");
+                        return;
+                    }
+
+                    fetch("../Backend/incidencias.php", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            accion: "crear",
+                            ubicacion: ubi,
+                            estado_contenedor: est,
+                            tipo_basura: tip
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(respuesta => {
+                        alert(respuesta.message || "Incidencia registrada exitosamente.");
+                        document.getElementById("inp-ubicacion").value = "";
+                        obtenerYListarIncidencias();
+                    })
+                    .catch(err => alert("Error al conectar con la API de incidencias."));
+                });
+            });
+        }
+
+        // 2. VER INCIDENCIAS (ADMINISTRADOR)
+        const linkVerIncidencias = document.getElementById('menu-ver-incidencias');
+        if (linkVerIncidencias) {
+            linkVerIncidencias.addEventListener('click', function(e) {
+                e.preventDefault();
+                removerActivos();
+                this.classList.add('activo');
+
+                espacio.innerHTML = `
+                    <h3>👁️ Control e Inspección de Incidencias</h3>
+                    <p style="color: #64748b;">Listado general de reportes registrados en la plataforma.</p>
+                    <div id="contenedor-tabla-incidencias">Cargando incidencias...</div>
+                `;
+
+                obtenerYListarIncidencias();
+            });
+        }
+
+        // FUNCIÓN COMPARTIDA PARA MOSTRAR TODAS LAS INCIDENCIAS CON SUS ATRIBUTOS
+        function obtenerYListarIncidencias() {
+            fetch("../Backend/incidencias.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ accion: "listar" })
+            })
+            .then(res => res.json())
+            .then(respuesta => {
+                const divTabla = document.getElementById("contenedor-tabla-incidencias");
+                if (!respuesta.data || respuesta.data.length === 0) {
+                    divTabla.innerHTML = "<p style='color:#64748b;'>No hay incidencias registradas aún.</p>";
+                    return; 
+                }
+
+                let html = `
+                    <table class="tabla-api">
+                        <thead>
+                            <tr>
+                                <th># ID</th>
+                                <th>Ubicación</th>
+                                <th>Estado Contenedor</th>
+                                <th>Tipo Basura</th>
+                                <th>Estado Incidencia</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                respuesta.data.forEach(inc => {
+                    html += `
+                        <tr>
+                            <td>#${inc.id}</td>
+                            <td><strong>${inc.ubicacion}</strong></td>
+                            <td>${inc.estado_contenedor}</td>
+                            <td>${inc.tipo_basura}</td>
+                            <td><span style="background:#fee2e2; color:#991b1b; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:0.8rem;">${(inc.estado_incidencia || 'ABIERTA').toUpperCase()}</span></td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table>`;
+                divTabla.innerHTML = html;
+            })
+            .catch(err => {
+                const divTabla = document.getElementById("contenedor-tabla-incidencias");
+                if(divTabla) divTabla.innerHTML = "<p style='color:red;'>Error al cargar las incidencias desde el servidor.</p>";
+            });
+        }
+
+        // 3. ROLES (ADMINISTRADOR)
+        const linkRoles = document.getElementById('menu-roles');
+        if (linkRoles) {
+            linkRoles.addEventListener('click', function(e) {
+                e.preventDefault();
+                removerActivos();
+                this.classList.add('activo');
+
+                espacio.innerHTML = `
+                    <div class="formulario-interno">
+                        <h3>🔑 Asignar Roles de Usuario</h3>
+                        <form id="form-actualizar-rol" style="display: flex; flex-direction: column; gap: 12px; max-width: 400px;">
+                            <div>
+                                <label style="font-weight: bold; display:block; margin-bottom:5px;">Email del Usuario:</label>
+                                <input type="email" id="rol-email" placeholder="usuario@gmail.com" class="campo-entrada" required>
+                            </div>
+                            <div>
+                                <label style="font-weight: bold; display:block; margin-bottom:5px;">Nuevo Rol:</label>
+                                <select id="rol-nuevo" class="campo-entrada">
+                                    <option value="vecino">Vecino</option>
+                                    <option value="operario">Operario</option>
+                                    <option value="cuadrilla">Cuadrilla</option>
+                                    <option value="administrador">Administrador</option>
+                                </select>
+                            </div>
+                            <button type="button" id="btn-cambiar-rol" class="btn-mini" style="align-self: flex-start;">Actualizar Rol</button>
+                        </form>
+                    </div>
+                `;
+
+                document.getElementById('btn-cambiar-rol').addEventListener('click', function() {
+                    const email = document.getElementById('rol-email').value.trim();
+                    const nuevoRol = document.getElementById('rol-nuevo').value;
+
+                    if (!email) {
+                        alert("Ingrese un email válido.");
+                        return;
+                    }
+
+                    fetch('../Backend/actualizar_rol.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email_destino: email,
+                            nuevo_rol: nuevoRol
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.status === 'success') {
+                            document.getElementById('rol-email').value = "";
+                        }
+                    })
+                    .catch(err => alert("Error de red o endpoint no encontrado."));
+                });
+            });
+        }
     </script>
 </body>
 </html>

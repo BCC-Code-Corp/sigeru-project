@@ -22,6 +22,11 @@
             </div>
 
             <div class="grupo-campo">
+                <label for="cedula">Cédula de Identidad</label>
+                <input type="text" id="cedula" name="cedula" placeholder="1.234.567-8" class="campo-entrada" required>
+            </div>
+
+            <div class="grupo-campo">
                 <label for="email">Correo electrónico</label>
                 <input type="email" id="email" name="email" placeholder="ejemplo@sigeru.com" class="campo-entrada" required>
             </div>
@@ -41,9 +46,24 @@
     </div>
 
     <script>
+        // Validación de Cédula Uruguaya en el Frontend
+        function validarCedulaUruguaya(ci) {
+            const clean = ci.replace(/[^0-9]/g, '').padStart(8, '0');
+            if (clean.length !== 8) return false;
+            const factors = [2, 9, 8, 7, 6, 3, 4];
+            let sum = 0;
+            for (let i = 0; i < 7; i++) {
+                sum += parseInt(clean[i]) * factors[i];
+            }
+            const rem = sum % 10;
+            const check = (rem === 0) ? 0 : (10 - rem);
+            return check === parseInt(clean[7]);
+        }
+
         document.getElementById('form-registro').addEventListener('submit', function(e) {
             e.preventDefault();
             const nombre = document.getElementById('nombre').value.trim();
+            const cedula = document.getElementById('cedula').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btn-submit');
