@@ -1,0 +1,492 @@
+{
+  "info": {
+    "name": "SiGeRU - API REST (Testing de endpoints)",
+    "description": "Colección de Postman para validar los 4 CRUD (Usuarios, Camiones, Contenedores, Centros de Acopio) y Auth (login/registro) del sistema SiGeRU, incluyendo los códigos de estado HTTP esperados en cada caso (200, 201, 400, 401, 404, 405, 409).\n\nCómo usarla:\n1. Importar este archivo en Postman (File > Import).\n2. Ajustar la variable de colección `base_url` si tu XAMPP/servidor no usa http://localhost/SiGeRU2/Backend.\n3. Correr la colección completa con el Collection Runner: cada request tiene un test que verifica el código HTTP de respuesta.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost/SiGeRU2/Backend" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registro - éxito (201 Created)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('201 Created', function () { pm.response.to.have.status(201); });",
+            "pm.test('status success', function () { pm.expect(pm.response.json().status).to.eql('success'); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/usuarios/registro.php",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Vecino Postman\",\n  \"cedula\": \"49123324\",\n  \"email\": \"postman.test@sigeru.uy\",\n  \"password\": \"clave123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registro - datos incompletos (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/usuarios/registro.php",
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Sin datos\"\n}" }
+          }
+        },
+        {
+          "name": "Registro - cédula/email duplicados (409 Conflict)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('409 Conflict', function () { pm.response.to.have.status(409); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/usuarios/registro.php",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Vecino Prueba\",\n  \"cedula\": \"10000007\",\n  \"email\": \"vecino@sigeru.uy\",\n  \"password\": \"clave123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registro - método no soportado (405 Method Not Allowed)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('405 Method Not Allowed', function () { pm.response.to.have.status(405); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/usuarios/registro.php" }
+        },
+        {
+          "name": "Login - éxito (200 OK)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/usuarios/login.php",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@sigeru.uy\",\n  \"password\": \"admin123\"\n}" }
+          }
+        },
+        {
+          "name": "Login - credenciales inválidas (401 Unauthorized)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('401 Unauthorized', function () { pm.response.to.have.status(401); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/usuarios/login.php",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@sigeru.uy\",\n  \"password\": \"password-incorrecta\"\n}" }
+          }
+        },
+        {
+          "name": "Login - método no soportado (405 Method Not Allowed)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('405 Method Not Allowed', function () { pm.response.to.have.status(405); });"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/api/usuarios/login.php" }
+        }
+      ]
+    },
+    {
+      "name": "CRUD Usuarios",
+      "item": [
+        {
+          "name": "Listar usuarios (200 OK)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/usuarios/usuarios.php" }
+        },
+        {
+          "name": "Crear usuario - éxito (201 Created)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('201 Created', function () { pm.response.to.have.status(201); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/usuarios/usuarios.php",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Operario Postman\",\n  \"cedula\": \"38159920\",\n  \"email\": \"operario.postman@sigeru.uy\",\n  \"password\": \"clave123\",\n  \"rol\": \"operario\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear usuario - inválido (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/usuarios/usuarios.php",
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"\",\n  \"email\": \"no-es-un-email\"\n}" }
+          }
+        },
+        {
+          "name": "Obtener usuario inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/usuarios/usuarios.php?id=999999" }
+        },
+        {
+          "name": "Actualizar usuario inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/usuarios/usuarios.php?id=999999",
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"No existe\",\n  \"email\": \"noexiste@sigeru.uy\",\n  \"rol\": \"vecino\"\n}" }
+          }
+        },
+        {
+          "name": "Eliminar usuario inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/api/usuarios/usuarios.php?id=999999" }
+        },
+        {
+          "name": "Método no soportado (405 Method Not Allowed)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('405 Method Not Allowed', function () { pm.response.to.have.status(405); });"
+          ]}}],
+          "request": { "method": "PATCH", "url": "{{base_url}}/api/usuarios/usuarios.php" }
+        }
+      ]
+    },
+    {
+      "name": "CRUD Camiones (flota)",
+      "item": [
+        {
+          "name": "Listar camiones (200 OK)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/recoleccion/camiones.php" }
+        },
+        {
+          "name": "Crear camión - éxito (201 Created)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('201 Created', function () { pm.response.to.have.status(201); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/recoleccion/camiones.php",
+            "body": { "mode": "raw", "raw": "{\n  \"matricula\": \"POS 1122\",\n  \"capacidad_carga\": 90\n}" }
+          }
+        },
+        {
+          "name": "Crear camión - matrícula duplicada (409 Conflict)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('409 Conflict', function () { pm.response.to.have.status(409); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/recoleccion/camiones.php",
+            "body": { "mode": "raw", "raw": "{\n  \"matricula\": \"ABC 1234\",\n  \"capacidad_carga\": 90\n}" }
+          }
+        },
+        {
+          "name": "Crear camión - capacidad inválida (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/recoleccion/camiones.php",
+            "body": { "mode": "raw", "raw": "{\n  \"matricula\": \"POS 9988\",\n  \"capacidad_carga\": -5\n}" }
+          }
+        },
+        {
+          "name": "Actualizar camión inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/recoleccion/camiones.php?matricula=NOEXISTE",
+            "body": { "mode": "raw", "raw": "{\n  \"estado\": \"Disponible\"\n}" }
+          }
+        },
+        {
+          "name": "Eliminar camión inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/api/recoleccion/camiones.php?matricula=NOEXISTE" }
+        }
+      ]
+    },
+    {
+      "name": "CRUD Contenedores",
+      "item": [
+        {
+          "name": "Listar contenedores (200 OK)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/gestion/contenedores.php" }
+        },
+        {
+          "name": "Crear contenedor - éxito (201 Created)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('201 Created', function () { pm.response.to.have.status(201); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/gestion/contenedores.php",
+            "body": { "mode": "raw", "raw": "{\n  \"ubicacion\": \"Bulevar Postman 123\",\n  \"estado\": \"vacio\"\n}" }
+          }
+        },
+        {
+          "name": "Crear contenedor - estado inválido (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/gestion/contenedores.php",
+            "body": { "mode": "raw", "raw": "{\n  \"ubicacion\": \"Bulevar Postman 123\",\n  \"estado\": \"no-existe\"\n}" }
+          }
+        },
+        {
+          "name": "Obtener contenedor inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/gestion/contenedores.php?id=999999" }
+        },
+        {
+          "name": "Eliminar contenedor inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/api/gestion/contenedores.php?id=999999" }
+        }
+      ]
+    },
+    {
+      "name": "CRUD Centros de Acopio y Maquinaria",
+      "item": [
+        {
+          "name": "Listar centros de acopio (200 OK)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/gestion/centros_acopio.php" }
+        },
+        {
+          "name": "Crear centro de acopio - éxito (201 Created)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('201 Created', function () { pm.response.to.have.status(201); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/gestion/centros_acopio.php",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Centro Postman\",\n  \"ubicacion\": \"Ruta 5 km 30\",\n  \"maquinaria\": \"Cargador frontal\",\n  \"estado\": \"Operativo\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear centro de acopio - datos incompletos (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/gestion/centros_acopio.php",
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"\",\n  \"ubicacion\": \"\"\n}" }
+          }
+        },
+        {
+          "name": "Actualizar centro de acopio inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/gestion/centros_acopio.php?id=999999",
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"No existe\",\n  \"ubicacion\": \"En ningún lado\"\n}" }
+          }
+        },
+        {
+          "name": "Eliminar centro de acopio inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/api/gestion/centros_acopio.php?id=999999" }
+        }
+      ]
+    },
+    {
+      "name": "API Incidencias",
+      "item": [
+        {
+          "name": "Listar incidencias (200 OK)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/recoleccion/incidencias.php" }
+        },
+        {
+          "name": "Listar incidencias de un usuario (200 OK)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/recoleccion/incidencias.php?usuario_id=1" }
+        },
+        {
+          "name": "Crear incidencia - éxito (201 Created)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('201 Created', function () { pm.response.to.have.status(201); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/recoleccion/incidencias.php",
+            "body": { "mode": "raw", "raw": "{\n  \"ubicacion\": \"Bulevar Postman 456\",\n  \"estado_contenedor\": \"desbordado\",\n  \"tipo_basura\": \"domiciliaria\",\n  \"usuario_id\": 1\n}" }
+          }
+        },
+        {
+          "name": "Crear incidencia - datos incompletos (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/recoleccion/incidencias.php",
+            "body": { "mode": "raw", "raw": "{\n  \"ubicacion\": \"\",\n  \"estado_contenedor\": \"\",\n  \"tipo_basura\": \"\"\n}" }
+          }
+        },
+        {
+          "name": "Asignar logística sin indicar accion (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": { "method": "PUT", "url": "{{base_url}}/api/recoleccion/incidencias.php?id=1" }
+        },
+        {
+          "name": "Asignar logística a incidencia inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/recoleccion/incidencias.php?id=999999&accion=asignar",
+            "body": { "mode": "raw", "raw": "{\n  \"matricula_camion\": \"XYZ 1234\"\n}" }
+          }
+        },
+        {
+          "name": "Resolver incidencia inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": { "method": "PUT", "url": "{{base_url}}/api/recoleccion/incidencias.php?id=999999&accion=resolver" }
+        },
+        {
+          "name": "Método no soportado en incidencias (405 Method Not Allowed)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('405 Method Not Allowed', function () { pm.response.to.have.status(405); });"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/api/recoleccion/incidencias.php?id=1" }
+        }
+      ]
+    },
+    {
+      "name": "API Notificaciones",
+      "item": [
+        {
+          "name": "Listar notificaciones - falta usuario_id (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/notificaciones/notificaciones.php" }
+        },
+        {
+          "name": "Listar notificaciones de un usuario (200 OK)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/notificaciones/notificaciones.php?usuario_id=1" }
+        },
+        {
+          "name": "Listar anuncios (200 OK)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('200 OK', function () { pm.response.to.have.status(200); });"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/api/notificaciones/notificaciones.php?anuncios=1" }
+        },
+        {
+          "name": "Publicar anuncio - éxito (201 Created)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('201 Created', function () { pm.response.to.have.status(201); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/notificaciones/notificaciones.php",
+            "body": { "mode": "raw", "raw": "{\n  \"mensaje\": \"Anuncio de prueba desde Postman\"\n}" }
+          }
+        },
+        {
+          "name": "Publicar anuncio - mensaje vacío (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/notificaciones/notificaciones.php",
+            "body": { "mode": "raw", "raw": "{\n  \"mensaje\": \"\"\n}" }
+          }
+        },
+        {
+          "name": "Marcar como leída - falta id (400 Bad Request)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('400 Bad Request', function () { pm.response.to.have.status(400); });"
+          ]}}],
+          "request": { "method": "PUT", "url": "{{base_url}}/api/notificaciones/notificaciones.php" }
+        },
+        {
+          "name": "Marcar como leída - notificación inexistente (404 Not Found)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('404 Not Found', function () { pm.response.to.have.status(404); });"
+          ]}}],
+          "request": { "method": "PUT", "url": "{{base_url}}/api/notificaciones/notificaciones.php?id=999999" }
+        },
+        {
+          "name": "Método no soportado en notificaciones (405 Method Not Allowed)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('405 Method Not Allowed', function () { pm.response.to.have.status(405); });"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/api/notificaciones/notificaciones.php?id=1" }
+        }
+      ]
+    }
+  ]
+}
