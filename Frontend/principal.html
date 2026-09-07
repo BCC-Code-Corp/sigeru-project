@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiGeRU - Gestión de Residuos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="encabezado" id="encabezado-principal">
+        <div class="empresa">
+            <!-- Corregida la ruta para apuntar a assets -->
+            <img src="../assets/LogoBCC.png" alt="Logo SiGeRU" class="logo-empresa">
+        </div>
+        <div class="acciones">
+            <a href="login.html" class="inicio-sesion">
+                <button>Iniciar sesión</button>
+            </a>
+            <a href="registro.html" class="registrarse">
+                <button>Registrarse</button>
+            </a>
+        </div>
+
+        <nav class="navegacion">
+            <a href="#hero" class="etiqueta-a">Inicio</a>
+            <a href="#funcionalidades" class="etiqueta-a">Servicios</a>
+            <a href="#como-funciona" class="etiqueta-a">Cómo funciona</a>
+            <a href="#roles" class="etiqueta-a">Nosotros</a>
+        </nav>
+    </header>
+
+    <main class="principal-empresa">
+        <section id="hero" class="presentacion">
+            <div class="hero-blob hero-blob-1"></div>
+            <div class="hero-blob hero-blob-2"></div>
+            <div class="presentacion-texto">
+                <span class="hero-badge">♻️ Gestión ambiental inteligente</span>
+                <h1>Gestión inteligente de residuos urbanos</h1>
+                <p>Administrá contenedores, incidencias, flota y recursos desde un solo sistema. Seguimiento en tiempo real para una ciudad más limpia y organizada.</p>
+                <div class="botones-hero">
+                    <a href="registro.html" class="boton-hero-primario">Empezar ahora</a>
+                    <a href="#como-funciona" class="boton-hero-secundario">Ver cómo funciona</a>
+                </div>
+            </div>
+            <img class="img-presentacion" src="../assets/Camion1.png" alt="Representación de gestión de residuos">
+        </section>
+
+        <section class="problema reveal">
+            <span class="problema-icono">🧭</span>
+            <div class="problema-texto">
+                <h2>La recolección de residuos, con un sistema claro</h2>
+                <p>Contenedores desbordados sin aviso, cuadrillas sin rutas definidas, reclamos de vecinos que se pierden y datos que nunca llegan a un informe. </p>
+                <p>SiGeRU centraliza toda esa información para que la gestión municipal sea más eficiente.</p>
+            </div>
+        </section>
+
+        <section id="funcionalidades" class="funcionalidades">
+            <h2 class="reveal">Todo lo que necesitás en un solo lugar</h2>
+            <div class="cuadricula-funcionalidades">
+                <div class="tarjeta reveal">
+                    <div class="icono-tarjeta">📦</div>
+                    <h3>Contenedores</h3>
+                    <p>Alta, baja y modificación. Ubicación, estado y tipo de residuo en tiempo real.</p>
+                </div>
+                <div class="tarjeta reveal" style="transition-delay:.05s;">
+                    <div class="icono-tarjeta">⚠️</div>
+                    <h3>Incidencias</h3>
+                    <p>Registrá roturas, desbordes y faltas de recolección. Seguimiento hasta la resolución.</p>
+                </div>
+                <div class="tarjeta reveal" style="transition-delay:.1s;">
+                    <div class="icono-tarjeta">🚛</div>
+                    <h3>Gestión de flota</h3>
+                    <p>Inventario de camiones, mantenimiento preventivo y asignación de rutas.</p>
+                </div>
+                <div class="tarjeta reveal" style="transition-delay:.15s;">
+                    <div class="icono-tarjeta">📊</div>
+                    <h3>Reportes y estadísticas</h3>
+                    <p>Zonas críticas, tiempos de resolución y frecuencia de recolección.</p>
+                </div>
+                <div class="tarjeta reveal" style="transition-delay:.2s;">
+                    <div class="icono-tarjeta">🗺️</div>
+                    <h3>Mapa interactivo</h3>
+                    <p>Visualizá contenedores, incidencias, centros de acopio y camiones en el mapa.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="como-funciona" class="como-funciona">
+            <h2 class="reveal">Cómo funciona</h2>
+            <div class="timeline">
+                <div class="timeline-item reveal">
+                    <div class="timeline-marcador">1</div>
+                    <h4>Se detecta una incidencia</h4>
+                    <p>Rotura, desborde o falta de recolección.</p>
+                </div>
+                <div class="timeline-item reveal" style="transition-delay:.08s;">
+                    <div class="timeline-marcador">2</div>
+                    <h4>Se asigna una cuadrilla</h4>
+                    <p>Responsable de resolverla según la zona.</p>
+                </div>
+                <div class="timeline-item reveal" style="transition-delay:.16s;">
+                    <div class="timeline-marcador">3</div>
+                    <h4>Se resuelve el problema</h4>
+                    <p>El estado pasa de abierta a en curso y luego a resuelta.</p>
+                </div>
+                <div class="timeline-item reveal" style="transition-delay:.24s;">
+                    <div class="timeline-marcador">4</div>
+                    <h4>Queda en el historial</h4>
+                    <p>Disponible para consulta y estadísticas futuras.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="roles" class="roles">
+            <h2 class="reveal">Pensado para todos los actores del sistema</h2>
+            <div class="cuadricula-roles">
+                <div class="tarjeta-rol reveal">
+                    <div class="icono-rol">🏛️</div>
+                    <h3>Administrador municipal</h3>
+                    <p>Supervisa el sistema completo y accede a todos los reportes.</p>
+                </div>
+                <div class="tarjeta-rol reveal" style="transition-delay:.05s;">
+                    <div class="icono-rol">🚛</div>
+                    <h3>Cuadrilla de recolección</h3>
+                    <p>Recibe rutas asignadas y actualiza el estado de las incidencias.</p>
+                </div>
+                <div class="tarjeta-rol reveal" style="transition-delay:.1s;">
+                    <div class="icono-rol">🏭</div>
+                    <h3>Operarios de vertederos</h3>
+                    <p>Gestionan capacidad, maquinaria e ingreso de residuos.</p>
+                </div>
+                <div class="tarjeta-rol reveal" style="transition-delay:.15s;">
+                    <div class="icono-rol">🏘️</div>
+                    <h3>Vecinos</h3>
+                    <p>Pueden reportar incidencias y hacer seguimiento de sus reclamos.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="pie-pagina">
+        <div class="footer-navegacion">
+            <div class="pie-pagina-marca">♻️ SiGeRU</div>
+            <h4>Navegación</h4>
+            <a href="#hero" class="etiqueta-a">Inicio</a>
+            <a href="#funcionalidades" class="etiqueta-a">Servicios</a>
+            <a href="#roles" class="etiqueta-a">Nosotros</a>
+        </div>
+        <div class="footer-empresa">
+            <h4>Empresa</h4>
+            <a href="sobre-nosotros.html" class="etiqueta-a">Sobre Nosotros</a>
+            <a href="#" class="etiqueta-a">Términos de uso</a>
+        </div>
+    </footer>
+
+    <script>
+        // Header flotante: agrega sombra/blur una vez que se scrollea un poco.
+        const encabezado = document.getElementById('encabezado-principal');
+        window.addEventListener('scroll', function() {
+            encabezado.classList.toggle('encabezado--flotante', window.scrollY > 30);
+        });
+
+        // Animación de aparición al hacer scroll (IntersectionObserver):
+        // cada elemento .reveal se muestra la primera vez que entra en pantalla.
+        const observador = new IntersectionObserver(function(entradas) {
+            entradas.forEach(function(entrada) {
+                if (entrada.isIntersecting) {
+                    entrada.target.classList.add('visible');
+                    observador.unobserve(entrada.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.reveal').forEach(function(el) {
+            observador.observe(el);
+        });
+    </script>
+</body>
+</html>

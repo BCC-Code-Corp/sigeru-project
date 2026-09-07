@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre Nosotros - BCC Code Corporation</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos específicos para la sección corporativa de BCC */
+        .hero-nosotros {
+            background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+        }
+
+        .hero-nosotros h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            color: #bbf7d0;
+        }
+
+        .hero-nosotros p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .seccion-corporativa {
+            max-width: 1100px;
+            margin: -50px auto 80px;
+            padding: 0 20px;
+        }
+
+        .tarjeta-presentacion {
+            background: white;
+            border-radius: 24px;
+            padding: 50px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            margin-bottom: 50px;
+        }
+
+        .tarjeta-presentacion h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .texto-destacado {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #4b5563;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .valores-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .valores-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .valor-caja {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-top: 5px solid #22c55e;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .valor-caja:hover {
+            transform: translateY(-8px);
+        }
+
+        .valor-icono {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .valor-caja h3 {
+            font-size: 1.5rem;
+            color: #166534;
+            margin-bottom: 15px;
+        }
+
+        .valor-caja p {
+            font-size: 1rem;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .badge-uruguay {
+            display: inline-block;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Encabezado idéntico al principal para mantener consistencia de navegación -->
+    <header class="encabezado">
+        <div class="empresa">
+            <img src="../assets/LogoBCC.png" alt="Logo SiGeRU" class="logo-empresa">
+        </div>
+        <div class="acciones">
+            <a href="login.html" class="inicio-sesion">
+                <button>Iniciar sesión</button>
+            </a>
+            <a href="registro.html" class="registrarse">
+                <button>Registrarse</button>
+            </a>
+        </div>
+        <nav class="navegacion">
+            <a href="principal.html" class="etiqueta-a">Inicio</a>
+            <a href="principal.html#funcionalidades" class="etiqueta-a">Servicios</a>
+            <a href="principal.html#como-funciona" class="etiqueta-a">Cómo funciona</a>
+            <a href="sobre-nosotros.html" class="etiqueta-a" style="color: #166534;">Nosotros</a>
+        </nav>
+    </header>
+
+    <!-- Presentación de la Empresa -->
+    <section class="hero-nosotros">
+        <span class="badge-uruguay">🇺🇾 Basado en Uruguay.</span>
+        <h1>BCC Code Corporation</h1>
+        <p>Efectividad, calidad y tecnología de vanguardia al servicio de tus proyectos.</p>
+    </section>
+
+    <div class="seccion-corporativa">
+        <!-- Tarjeta de Introducción -->
+        <article class="tarjeta-presentacion">
+            <h2>Quiénes Somos</h2>
+            <p class="texto-destacado">
+                Somos una empresa de desarrollo de software uruguaya enfocada en transformar problemas complejos en soluciones digitales de alto impacto. 
+                Creemos que la tecnología debe ser eficiente, robusta y accesible. Nos apasiona diseñar productos que superen las expectativas de nuestros 
+                clientes, priorizando siempre la excelencia técnica, la calidad del código y una comunicación directa y honesta en cada etapa del camino.
+            </p>
+        </article>
+
+        <!-- Misión, Visión y Objetivos -->
+        <div class="valores-grid">
+            
+            <!-- MISIÓN -->
+            <div class="valor-caja">
+                <div class="valor-icono">🚀</div>
+                <h3>Nuestra Misión</h3>
+                <p>
+                    Impulsar el éxito y crecimiento de nuestros clientes mediante la creación de software confiable, ágil y a medida. Nos comprometemos a entregar soluciones eficaces que resuelvan necesidades reales con los estándares de calidad más altos del mercado tecnológico.
+                </p>
+            </div>
+
+            <!-- VISIÓN -->
+            <div class="valor-caja">
+                <div class="valor-icono">👁️‍🗨️</div>
+                <h3>Nuestra Visión</h3>
+                <p>
+                    Consolidarnos como la <i>Software Factory</i> referente de confianza en Uruguay y la región, reconocida por la solidez técnica de nuestros ingenieros, la excelencia metodológica en la gestión de proyectos y nuestro firme compromiso con el cliente.
+                </p>
+            </div>
+
+            <!-- OBJETIVOS -->
+            <div class="valor-caja">
+                <div class="valor-icono">🎯</div>
+                <h3>Nuestros Objetivos</h3>
+                <p>
+                    Garantizar la efectividad del 100% en las entregas de proyectos, optimizar los tiempos de desarrollo utilizando metodologías ágiles y construir productos de software que sean escalables, seguros y estéticamente impecables para todos nuestros usuarios.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Pie de página unificado -->
+    <footer class="pie-pagina">
+        <div class="footer-navegacion">
+            <h4>Navegación</h4>
+            <a href="principal.html#hero" class="etiqueta-a">Inicio</a>
+            <a href="principal.html#funcionalidades" class="etiqueta-a">Servicios</a>
+            <a href="sobre-nosotros.html" class="etiqueta-a">Nosotros</a>
+        </div>
+        <div class="footer-empresa">
+            <h4>Empresa</h4>
+            <a href="sobre-nosotros.html" class="etiqueta-a">Sobre Nosotros</a>
+            <a href="#" class="etiqueta-a">Términos de uso</a>
+        </div>
+    </footer>
+
+</body>
+</html>
