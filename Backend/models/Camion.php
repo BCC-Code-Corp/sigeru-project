@@ -27,10 +27,10 @@ class Camion
     public function listarTodos(): array
     {
         $stmt = $this->pdo->query(
-            "SELECT camiones.*, usuarios.nombre AS cuadrilla_nombre
+            "SELECT camiones.*, cuadrillas.nombre AS cuadrilla_nombre
              FROM camiones
-             LEFT JOIN usuarios ON usuarios.id = camiones.cuadrilla_id
-             ORDER BY camiones.matricula ASC"
+             LEFT JOIN cuadrillas ON cuadrillas.id = camiones.cuadrilla_id
+             WHERE camiones.activo=1 ORDER BY camiones.matricula ASC"
         );
         return $stmt->fetchAll();
     }
@@ -39,10 +39,10 @@ class Camion
     public function buscarPorMatricula(string $matricula)
     {
         $stmt = $this->pdo->prepare(
-            "SELECT camiones.*, usuarios.nombre AS cuadrilla_nombre
+            "SELECT camiones.*, cuadrillas.nombre AS cuadrilla_nombre
              FROM camiones
-             LEFT JOIN usuarios ON usuarios.id = camiones.cuadrilla_id
-             WHERE camiones.matricula = ?"
+             LEFT JOIN cuadrillas ON cuadrillas.id = camiones.cuadrilla_id
+             WHERE camiones.matricula = ? AND camiones.activo=1 FOR UPDATE"
         );
         $stmt->execute([$matricula]);
         return $stmt->fetch();
@@ -51,7 +51,7 @@ class Camion
     /** Busca el camión (si existe) que tiene asignada una cuadrilla puntual. */
     public function buscarPorCuadrilla(int $cuadrillaId)
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM camiones WHERE cuadrilla_id = ? LIMIT 1");
+        $stmt = $this->pdo->prepare("SELECT * FROM camiones WHERE cuadrilla_id = ? AND activo=1 LIMIT 1");
         $stmt->execute([$cuadrillaId]);
         return $stmt->fetch();
     }
@@ -82,8 +82,8 @@ class Camion
     /** Elimina un camión de la flota. */
     public function eliminar(string $matricula): bool
     {
-        $stmt = $this->pdo->prepare("DELETE FROM camiones WHERE matricula = ?");
-        return $stmt->execute([$matricula]);
+        $stmt = $this->pdo->prepare("UPDATE camiones SET activo=0, motivo_baja=? WHERE matricula = ?");
+        return $stmt->execute([Sesion::datos()['motivo'] ?? ($_GET['motivo'] ?? 'Baja administrativa'), $matricula]);
     }
 
     /** Asigna (o reemplaza) la cuadrilla persistente de un camión. */
@@ -99,4 +99,12 @@ class Camion
         $stmt = $this->pdo->prepare("UPDATE camiones SET cuadrilla_id = NULL WHERE matricula = ?");
         return $stmt->execute([$matricula]);
     }
+
+    public function buscarCuadrillaDisponible(int $id): array|false
+    {
+        $q=$this->pdo->prepare('SELECT * FROM cuadrillas WHERE id=? AND disponibilidad=1 FOR UPDATE');
+        $q->execute([$id]);
+        return $q->fetch();
+    }
+
 }

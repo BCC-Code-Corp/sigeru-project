@@ -24,23 +24,23 @@ require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';
 require_once __DIR__ . '/../../controllers/IncidenciaController.php';
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT');
-header('Access-Control-Allow-Headers: Content-Type');
+
+require_once __DIR__ . '/../../core/Sesion.php';
 
 try {
+    Sesion::proteger($pdo, 'incidencias');
     $controlador = new IncidenciaController($pdo);
     $metodo = $_SERVER['REQUEST_METHOD'];
 
     if ($metodo === 'GET') {
-        if (!empty($_GET['usuario_id'])) {
+        if (!empty($_GET['usuario_id']) && $GLOBALS['actor']['rol'] === 'administrador') {
             Respuesta::enviarResultado($controlador->listarPorUsuario($_GET));
         }
         Respuesta::enviarResultado($controlador->listar());
     }
 
     if ($metodo === 'POST') {
-        $datos = json_decode(file_get_contents('php://input'), true) ?? [];
+        $datos = Sesion::datos();
         Respuesta::enviarResultado($controlador->crear($datos), 201);
     }
 
@@ -48,7 +48,7 @@ try {
         if (empty($_GET['id'])) {
             Respuesta::enviar(["status" => "error", "message" => "Falta el id de la incidencia."], 400);
         }
-        $datos = json_decode(file_get_contents('php://input'), true) ?? [];
+        $datos = Sesion::datos();
         $datos['id'] = $_GET['id'];
         $accion = $_GET['accion'] ?? '';
 

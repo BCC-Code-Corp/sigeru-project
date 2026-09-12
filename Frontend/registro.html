@@ -33,9 +33,10 @@
 
             <div class="grupo-campo">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" placeholder="Mínimo 6 caracteres" class="campo-entrada" required>
+                <input type="password" id="password" name="password" placeholder="8 o más: mayúscula, minúscula, número y símbolo" minlength="8" class="campo-entrada" required>
             </div>
 
+            <p id="error-registro" role="alert" style="color:#b91c1c"></p>
             <button type="submit" id="btn-submit" class="boton-formulario">Registrarme</button>
         </form>
 
@@ -45,7 +46,8 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import {validarRegistro} from './validacion.js';
         // Validación de Cédula Uruguaya en el Frontend
         function validarCedulaUruguaya(ci) {
             const clean = ci.replace(/[^0-9]/g, '').padStart(8, '0');
@@ -68,8 +70,9 @@
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btn-submit');
 
-            if (!validarCedulaUruguaya(cedula)) {
-                alert('La Cédula de Identidad ingresada no es válida.');
+            const error=validarRegistro({nombre,cedula,email,password});
+            if (error) {
+                document.getElementById('error-registro').textContent=error;
                 return;
             }
 
@@ -87,9 +90,8 @@
             .then(data => {
                 if (data.status === 'success') {
                     btn.innerHTML = '<span class="spinner"></span> Redirigiendo...';
-                    localStorage.setItem('sesion_activa', JSON.stringify(data.usuario));
                     setTimeout(() => {
-                        window.location.href = 'panel.html';
+                        window.location.href = 'login.html?registro=pendiente';
                     }, 1000);
                 } else {
                     alert(data.message);

@@ -10,16 +10,21 @@ require_once __DIR__ . '/../models/Contenedor.php';
 class ContenedorController
 {
     private Contenedor $contenedorModel;
-    private array $estadosPermitidos = ['lleno', 'vacio', 'mantenimiento'];
+    private PDO $pdo;
+    private array $estadosPermitidos = ['funcional', 'roto', 'desbordado'];
 
     public function __construct(PDO $pdo)
     {
+        $this->pdo=$pdo;
         $this->contenedorModel = new Contenedor($pdo);
     }
 
     public function listar(): array
     {
-        return ["status" => "success", "data" => $this->contenedorModel->listarTodos()];
+        $lista=$this->contenedorModel->listarTodos();
+        if (isset($_GET['repuestos'])) $lista=array_values(array_filter($lista,fn($c)=>(int)$c['en_servicio']===0));
+        if ($GLOBALS['actor']['rol']!=='administrador') $lista=array_values(array_filter($lista,fn($c)=>(int)$c['en_servicio']===1));
+        return ['status'=>'success','data'=>$lista];
     }
 
     public function obtener(int $id): array
@@ -47,6 +52,8 @@ class ContenedorController
             return "El estado '{$datos['estado']}' no es válido.";
         }
 
+        if (empty(trim($datos['tipo_residuo'] ?? ''))) return 'El tipo de residuo es obligatorio.';
+        if (isset($datos['en_servicio']) && !in_array((string)$datos['en_servicio'],['0','1'],true)) return 'En servicio debe ser 0 o 1.';
         return null;
     }
 
@@ -57,7 +64,7 @@ class ContenedorController
             return ["status" => "error", "message" => $error, "_code" => 400];
         }
 
-        $this->contenedorModel->crear(trim($datos['ubicacion']), trim($datos['estado']));
+        $this->contenedorModel->crear(trim($datos['ubicacion']), trim($datos['estado']), trim($datos['tipo_residuo']), (bool)($datos['en_servicio'] ?? 1));
 
         return ["status" => "success", "message" => "Contenedor registrado con éxito.", "_code" => 201];
     }
@@ -68,12 +75,18 @@ class ContenedorController
             return ["status" => "error", "message" => "El contenedor no existe.", "_code" => 404];
         }
 
+        $actual=$this->contenedorModel->buscarPorId($id);
+        if ($GLOBALS['actor']['rol']!=='administrador') {
+            if (!$this->contenedorModel->asignadoEnCurso($id,$GLOBALS['actor']['cuadrilla_id'])) throw new DomainException('El contenedor no está asignado a tu cuadrilla.',403);
+            $actual=$this->contenedorModel->buscarPorId($id);
+            $datos=['estado'=>$datos['estado'] ?? '', 'ubicacion'=>$actual['ubicacion'],'tipo_residuo'=>$actual['tipo_residuo']];
+        }
         $error = $this->validarDatos($datos);
         if ($error) {
             return ["status" => "error", "message" => $error, "_code" => 400];
         }
 
-        $this->contenedorModel->actualizar($id, trim($datos['ubicacion']), trim($datos['estado']));
+        $this->contenedorModel->actualizar($id, trim($datos['ubicacion']), trim($datos['estado']), trim($datos['tipo_residuo']), (bool)($datos['en_servicio'] ?? $actual['en_servicio']));
 
         return ["status" => "success", "message" => "Contenedor actualizado correctamente."];
     }

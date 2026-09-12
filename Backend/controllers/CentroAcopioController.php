@@ -19,11 +19,14 @@ class CentroAcopioController
 
     public function listar(): array
     {
-        return ["status" => "success", "data" => $this->centroModel->listarTodos()];
+        $lista=$this->centroModel->listarTodos();
+        if ($GLOBALS['actor']['rol']==='operario') $lista=array_values(array_filter($lista,fn($c)=>(int)$c['id']===(int)$GLOBALS['actor']['centro_id']));
+        return ['status'=>'success','data'=>$lista];
     }
 
     public function obtener(int $id): array
     {
+        if ($GLOBALS['actor']['rol']==='operario' && $id!==(int)$GLOBALS['actor']['centro_id']) return ['status'=>'error','message'=>'Centro ajeno.','_code'=>403];
         $centro = $this->centroModel->buscarPorId($id);
 
         if ($centro) {
@@ -52,6 +55,8 @@ class CentroAcopioController
             return "El estado '$estado' no es válido.";
         }
 
+        if (!isset($datos['capacidad']) || !is_numeric($datos['capacidad']) || $datos['capacidad']<=0) return 'La capacidad máxima debe ser mayor a cero.';
+        if (!in_array($datos['tipo_centro'] ?? '', ['acopio','vertedero'],true)) return 'Tipo de instalación inválido.';
         return null;
     }
 
@@ -69,6 +74,7 @@ class CentroAcopioController
             trim($datos['estado'] ?? 'Operativo')
         );
 
+        $this->centroModel->guardarCapacidad($this->centroModel->ultimoId(),$datos);
         return ["status" => "success", "message" => "Centro de acopio registrado con éxito.", "_code" => 201];
     }
 
@@ -91,6 +97,9 @@ class CentroAcopioController
             trim($datos['estado'] ?? 'Operativo')
         );
 
+        $this->centroModel->guardarCapacidad($id,$datos);
+        $centro=$this->centroModel->buscarPorId($id);
+        if ($centro['capacidad_ocupada']>$centro['capacidad']) return ['status'=>'success','message'=>'Centro actualizado. Alerta: la capacidad ocupada supera la máxima.','alerta'=>true];
         return ["status" => "success", "message" => "Centro de acopio actualizado correctamente."];
     }
 

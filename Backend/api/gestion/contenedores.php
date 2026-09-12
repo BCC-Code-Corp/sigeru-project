@@ -15,7 +15,10 @@ require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';
 require_once __DIR__ . '/../../controllers/ContenedorController.php';
 
+require_once __DIR__ . '/../../core/Sesion.php';
+
 try {
+    Sesion::proteger($pdo, 'contenedores');
     $controlador = new ContenedorController($pdo);
     $metodo = $_SERVER['REQUEST_METHOD'];
 
@@ -27,7 +30,7 @@ try {
     }
 
     if ($metodo === 'POST') {
-        $datos = json_decode(file_get_contents('php://input'), true) ?? [];
+        $datos = Sesion::datos();
         Respuesta::enviarResultado($controlador->crear($datos), 201);
     }
 
@@ -35,7 +38,7 @@ try {
         if (empty($_GET['id'])) {
             Respuesta::enviar(["status" => "error", "message" => "Falta el id del contenedor."], 400);
         }
-        $datos = json_decode(file_get_contents('php://input'), true) ?? [];
+        $datos = Sesion::datos();
         Respuesta::enviarResultado($controlador->actualizar((int) $_GET['id'], $datos));
     }
 

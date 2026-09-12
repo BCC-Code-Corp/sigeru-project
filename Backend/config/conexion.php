@@ -11,10 +11,11 @@
  * este archivo.
  */
 
-$host    = '127.0.0.1';
-$db      = 'sigeru_db';
-$user    = 'root';
-$pass    = ''; // Por defecto en XAMPP suele estar vacío
+$host    = getenv('SIGERU_DB_HOST') ?: '127.0.0.1';
+$port = getenv('SIGERU_DB_PORT') ?: '3306';
+$db      = getenv('SIGERU_DB_NAME') ?: 'sigeru_db';
+$user    = getenv('SIGERU_DB_USER') ?: 'root';
+$pass    = getenv('SIGERU_DB_PASSWORD') ?: ''; // Por defecto en XAMPP suele estar vacío
 $charset = 'utf8mb4';
 
 // ==================================================
@@ -30,7 +31,9 @@ if (!defined('SIGERU_DEBUG')) {
     define('SIGERU_DEBUG', false);
 }
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+ini_set('display_errors', SIGERU_DEBUG ? '1' : '0');
+
+$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 
 $opciones = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

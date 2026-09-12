@@ -355,23 +355,10 @@
                 <a href="#" id="menu-gestionar-maquinaria" class="item-menu">Gestionar Maquinaria</a>
                 <a href="#" id="menu-reportes-area" class="item-menu">Reportes de mi Área</a>
             </div>
-
-            <!-- ADMINISTRADOR: acceso completo -->
-            <div id="seccion-admin" style="display: none;">
-                <span class="titulo-grupo-menu">Administrador</span>
-                <a href="#" id="menu-gestionar-usuarios" class="item-menu">Usuarios y Roles</a>
-                <a href="#" id="menu-gestionar-contenedores" class="item-menu">Contenedores</a>
-                <a href="#" id="menu-gestionar-camiones" class="item-menu">Camiones y Flota</a>
-                <a href="#" id="menu-gestionar-rutas" class="item-menu">Rutas</a>
-                <a href="#" id="menu-gestionar-incidencias" class="item-menu">Incidencias</a>
-                <a href="#" id="menu-gestionar-centros" class="item-menu">Centros de Acopio</a>
-                <a href="#" id="menu-mapa-general" class="item-menu">Mapa General</a>
-                <a href="#" id="menu-reportes-estadisticas" class="item-menu">Reportes y Estadísticas</a>
-            </div>
         </nav>
 
         <div style="padding: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
-            <a href="principal.html" onclick="localStorage.removeItem('sesion_activa')" style="color: #fca5a5; text-decoration: none; font-weight: 700; font-size: 0.9rem;">🚪 Cerrar Sesión</a>
+            <a href="principal.html" id="cerrar-sesion" style="color: #fca5a5; text-decoration: none; font-weight: 700; font-size: 0.9rem;">🚪 Cerrar Sesión</a>
         </div>
     </aside>
 
@@ -395,25 +382,42 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <script>
+    <script type="module">
+        import {idioma} from './config.js';
+        import {validarPassword,validarCedula,mensajePassword} from './validacion.js';
+        document.documentElement.lang=idioma;
         // ==================================================
         //  ESTADO / SESIÓN
         // ==================================================
-        const sesion = JSON.parse(localStorage.getItem('sesion_activa'));
+        const respuestaSesion = await fetch('../Backend/api/usuarios/sesion.php', {credentials:'same-origin'});
+        if (!respuestaSesion.ok) { location.replace('login.html'); throw new Error('Sesión requerida'); }
+        const sesionServidor = await respuestaSesion.json();
+        const sesion = sesionServidor.usuario;
+        const rolSesion = String(sesion?.rol || '').trim().toLowerCase();
+        if (['administrador', 'admin'].includes(rolSesion)) {
+            location.replace('backoffice.html');
+            throw new Error('Los administradores deben usar el backoffice');
+        }
+        let csrf = sesionServidor.csrf;
         const espacio = document.getElementById('espacio-trabajo');
         let rolActual = 'vecino';
+
+        document.getElementById('cerrar-sesion').addEventListener('click',async e=>{e.preventDefault(); const r=await apiFetch('../Backend/api/usuarios/logout.php',{method:'POST'}); if(r.status==='success'){location.replace('login.html');}});
 
         function removerActivos() {
             document.querySelectorAll('.item-menu').forEach(l => l.classList.remove('activo'));
         }
 
         function guardarSesion() {
-            if (sesion) localStorage.setItem('sesion_activa', JSON.stringify(sesion));
         }
 
         // Wrapper simple para fetch + JSON, evita repetir .then(r => r.json())
         function apiFetch(url, opciones) {
-            return fetch(url, opciones).then(function(r) { return r.json(); });
+            opciones = opciones || {};
+            opciones.credentials = 'same-origin';
+            opciones.headers = {...opciones.headers, 'X-CSRF-Token':csrf};
+            if (opciones.method && opciones.method !== 'GET') { opciones.headers['Content-Type']='application/json'; if (!opciones.body && opciones.method !== 'DELETE') opciones.body='{}'; }
+            return fetch(url, opciones).then(async function(r) { if(r.status===401) location.replace('login.html'); return r.json(); });
         }
 
         // Escapa texto antes de insertarlo en el DOM vía innerHTML, para
@@ -423,24 +427,13 @@
             const texto = (valor === null || valor === undefined) ? '' : String(valor);
             const div = document.createElement('div');
             div.textContent = texto;
-            return div.innerHTML;
+            return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         // Validación de Cédula Uruguaya en el Frontend (mismo algoritmo que
         // usa registro.html y el Backend, reutilizado acá para el CRUD de
         // Usuarios del backoffice).
-        function validarCedulaUruguaya(ci) {
-            const clean = String(ci).replace(/[^0-9]/g, '').padStart(8, '0');
-            if (clean.length !== 8) return false;
-            const factors = [2, 9, 8, 7, 6, 3, 4];
-            let sum = 0;
-            for (let i = 0; i < 7; i++) {
-                sum += parseInt(clean[i]) * factors[i];
-            }
-            const rem = sum % 10;
-            const check = (rem === 0) ? 0 : (10 - rem);
-            return check === parseInt(clean[7]);
-        }
+        function validarCedulaUruguaya(ci) { return validarCedula(ci); }
 
         // ==================================================
         //  CONEXIÓN DE UN ÍTEM DE MENÚ A UNA FUNCIÓN DE RENDER
@@ -493,7 +486,7 @@
             // General + la sección correspondiente al rol del usuario.
             let rol = (sesion.rol || 'vecino').toLowerCase();
             if (rol === 'admin') rol = 'administrador';
-            rolActual = rol;
+            rolActual = ['chofer','recolector'].includes(rol) ? 'cuadrilla' : rol;
 
             const mapaSecciones = {
                 'administrador': 'seccion-admin',
@@ -502,7 +495,7 @@
                 'vecino': 'seccion-vecino'
             };
 
-            const idSeccion = mapaSecciones[rol] || 'seccion-vecino';
+            const idSeccion = mapaSecciones[rolActual] || 'seccion-vecino';
             const elSeccion = document.getElementById(idSeccion);
             if (elSeccion) elSeccion.style.display = 'block';
         }
@@ -574,11 +567,11 @@
         function renderDashboard() {
             espacio.innerHTML = `
                 <div class="seccion-bloque">
-                    <h3>Dashboard</h3>
+                    <h3>${rolActual === 'administrador' ? 'Backoffice de administración' : 'Dashboard'}</h3>
                     <p class="descripcion">Resumen general según tu rol dentro de SiGeRU.</p>
                     <div id="dash-contenido" class="grid-stats"><p style="color:#64748b;">Cargando estadísticas...</p></div>
                 </div>
-                ${renderNoticiasAmbientalesHtml()}
+                ${rolActual === 'administrador' ? `<div class="seccion-bloque"><h3>Gestión administrativa</h3><p>Administrá las cuentas, los recursos y la operación desde estos accesos o el menú lateral.</p><div id="accesos-backoffice" style="display:flex;flex-wrap:wrap;gap:12px"></div></div>` : renderNoticiasAmbientalesHtml()}
             `;
 
             const cont = document.getElementById('dash-contenido');
@@ -588,6 +581,21 @@
             }
 
             if (rolActual === 'administrador') {
+                const accesos = [
+                    ['Usuarios y aprobaciones','menu-gestionar-usuarios'],
+                    ['Contenedores y repuestos','menu-gestionar-contenedores'],
+                    ['Camiones y flota','menu-gestionar-camiones'],
+                    ['Centros de acopio','menu-gestionar-centros'],
+                    ['Rutas','menu-gestionar-rutas'],
+                    ['Incidencias','menu-gestionar-incidencias'],
+                    ['Reportes','menu-reportes-estadisticas']
+                ];
+                accesos.forEach(([texto, destino]) => {
+                    const boton = document.createElement('button');
+                    boton.type = 'button'; boton.className = 'btn-mini'; boton.textContent = texto;
+                    boton.onclick = () => document.getElementById(destino).click();
+                    document.getElementById('accesos-backoffice').append(boton);
+                });
                 Promise.all([
                     apiFetch('../Backend/api/usuarios/usuarios.php'),
                     apiFetch('../Backend/api/recoleccion/camiones.php'),
@@ -595,6 +603,7 @@
                     apiFetch('../Backend/api/gestion/centros_acopio.php'),
                     apiFetch('../Backend/api/recoleccion/incidencias.php')
                 ]).then(function(res) {
+                    if (res.some(r => r.status !== 'success')) throw new Error('No se pudieron consultar las estadísticas.');
                     const usuarios = res[0].data || [];
                     const camiones = res[1].data || [];
                     const contenedores = res[2].data || [];
@@ -607,9 +616,11 @@
 
                     cont.innerHTML =
                         tarjeta(usuarios.length, 'Usuarios totales') +
+                        tarjeta(usuarios.filter(u => u.estado_registro === 'pendiente').length, 'Solicitudes pendientes') +
                         tarjeta(camiones.length, 'Camiones en la flota') +
                         tarjeta(camDisp, 'Camiones disponibles') +
                         tarjeta(contenedores.length, 'Contenedores') +
+                        tarjeta(contenedores.filter(c => Number(c.en_servicio) === 0).length, 'Contenedores de repuesto') +
                         tarjeta(centros.length, 'Centros de acopio') +
                         tarjeta(incAbiertas, 'Incidencias abiertas') +
                         tarjeta(incCurso, 'Incidencias en curso') +
@@ -626,9 +637,9 @@
                 apiFetch('../Backend/api/recoleccion/incidencias.php')
                 .then(function(resp) {
                     const todas = resp.data || [];
-                    const mias = todas.filter(i => String(i.cuadrilla_id) === String(sesion.id));
+                    const mias = todas.filter(i => String(i.cuadrilla_id) === String(sesion.cuadrilla_id));
                     const enCurso = mias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'en curso').length;
-                    const resueltas = mias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'incidencia solucionada').length;
+                    const resueltas = mias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'cerrada').length;
 
                     cont.innerHTML =
                         tarjeta(mias.length, 'Incidencias asignadas a mí') +
@@ -646,7 +657,7 @@
                     const centros = res[0].data || [];
                     const contenedores = res[1].data || [];
                     const centrosOperativos = centros.filter(c => c.estado === 'Operativo').length;
-                    const contLlenos = contenedores.filter(c => c.estado === 'lleno').length;
+                    const contLlenos = contenedores.filter(c => c.estado === 'desbordado').length;
 
                     cont.innerHTML =
                         tarjeta(centros.length, 'Centros de acopio') +
@@ -667,7 +678,7 @@
                     const mias = resp.data || [];
                     const abiertas = mias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'abierta').length;
                     const enCurso = mias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'en curso').length;
-                    const resueltas = mias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'incidencia solucionada').length;
+                    const resueltas = mias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'cerrada').length;
 
                     cont.innerHTML =
                         tarjeta(mias.length, 'Incidencias que reporté') +
@@ -732,6 +743,7 @@
                     rol: sesion.rol
                 };
                 const nuevaPass = document.getElementById('perfil-password').value;
+                if (nuevaPass && !validarPassword(nuevaPass)) { alert(mensajePassword); return; }
                 if (nuevaPass) datos.password = nuevaPass;
 
                 if (!datos.nombre || !datos.email) {
@@ -918,7 +930,7 @@
         // Rojo = abierta · Amarillo = en curso (asignada a una cuadrilla) · Verde = solucionada
         function colorPorEstadoIncidencia(estado) {
             const e = (estado || '').toLowerCase();
-            if (e === 'incidencia solucionada') return '#16a34a';
+            if (e === 'cerrada') return '#16a34a';
             if (e === 'en curso') return '#eab308';
             return '#dc2626';
         }
@@ -991,20 +1003,20 @@
                 if (modo === 'cuadrilla') {
                     // La cuadrilla solo ve las incidencias que tiene
                     // asignadas a sí misma, no todas las del sistema.
-                    incidencias = incidencias.filter(function(i) { return String(i.cuadrilla_id) === String(sesion.id); });
+                    incidencias = incidencias.filter(function(i) { return String(i.cuadrilla_id) === String(sesion.cuadrilla_id); });
                 }
 
                 const puntos = [];
 
                 if (modo === 'admin' || modo === 'operario') {
                     contenedores.forEach(function(c) {
-                        puntos.push({ texto: c.ubicacion, popup: `🗑️ Contenedor #${c.id}<br>Estado: ${c.estado}` });
+                        puntos.push({ texto: c.ubicacion, popup: `🗑️ Contenedor #${escaparHtml(c.id)}<br>Estado: ${escaparHtml(c.estado)}` });
                     });
                 }
 
                 if (modo === 'admin' || modo === 'cuadrilla' || modo === 'operario') {
                     centros.forEach(function(c) {
-                        puntos.push({ texto: c.ubicacion, popup: `♻️ ${c.nombre}<br>Estado: ${c.estado}` });
+                        puntos.push({ texto: c.ubicacion, popup: `♻️ ${escaparHtml(c.nombre)}<br>Estado: ${escaparHtml(c.estado)}` });
                     });
                 }
 
@@ -1023,7 +1035,7 @@
                         puntos.push({
                             texto: i.ubicacion,
                             color: colorPorEstadoIncidencia(estado),
-                            popup: `⚠️ Incidencia #${i.id}<br>${i.estado_contenedor} · ${estado.toUpperCase()}`,
+                            popup: `⚠️ Incidencia #${escaparHtml(i.id)}<br>${escaparHtml(i.estado_contenedor)} · ${estado.toUpperCase()}`,
                             lat: (lat !== null && !isNaN(lat)) ? lat : undefined,
                             lon: (lon !== null && !isNaN(lon)) ? lon : undefined
                         });
@@ -1036,7 +1048,7 @@
                     enRuta.forEach(function(cam) {
                         const inc = enCurso.find(i => i.matricula_camion === cam.matricula);
                         if (inc) {
-                            puntos.push({ texto: inc.ubicacion, popup: `🚛 Camión ${cam.matricula} en ruta<br>Hacia: ${inc.ubicacion}` });
+                            puntos.push({ texto: inc.ubicacion, popup: `🚛 Camión ${escaparHtml(cam.matricula)} en ruta<br>Hacia: ${escaparHtml(inc.ubicacion)}` });
                         }
                     });
                 }
@@ -1047,8 +1059,8 @@
                     // ver el detalle de cada incidencia.
                     const abiertas = incidencias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'abierta').length;
                     const enCursoCant = incidencias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'en curso').length;
-                    const solucionadas = incidencias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'incidencia solucionada').length;
-                    const llenos = contenedores.filter(c => (c.estado || '').toLowerCase() === 'lleno').length;
+                    const solucionadas = incidencias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'cerrada').length;
+                    const llenos = contenedores.filter(c => (c.estado || '').toLowerCase() === 'desbordado').length;
 
                     const tarjeta = function(valor, etiqueta) {
                         return `<div style="background:white; border-radius:14px; padding:14px 18px; box-shadow:0 4px 10px rgba(0,0,0,.06); min-width:130px; text-align:center;">
@@ -1082,19 +1094,21 @@
             espacio.innerHTML = `
                 <div class="seccion-bloque">
                     <h3>Reportar Incidencia de Contenedor</h3>
-                    <p class="descripcion">Contanos qué encontraste y un operario lo derivará a la cuadrilla correspondiente.</p>
+                    <p class="descripcion">Seleccioná en el mapa el contenedor que querés reportar y completá los detalles.</p>
                     <div class="formulario-interno">
                         <form id="form-nuevo-reporte" class="form-fila" onsubmit="return false;">
                             <div>
-                                <label style="font-weight:bold; font-size:0.85rem;">Ubicación:</label>
-                                <input type="text" id="inp-ubicacion" placeholder="Ej: Bulevar Artigas 1234" class="campo-entrada" autocomplete="off" required value="${escaparHtml(previos.ubicacion || '')}">
+                                <label style="font-weight:bold; font-size:0.85rem;">Contenedor seleccionado:</label>
+                                <input type="text" id="inp-ubicacion" class="campo-entrada" readonly value="${escaparHtml(previos.ubicacion || '')}" placeholder="Seleccioná un marcador en el mapa">
+                                <input type="hidden" id="inp-contenedor" value="${escaparHtml(previos.contenedor_id || '')}">
                             </div>
+                            <div id="mapa-contenedores-reporte" class="mapa-lienzo"></div>
+                            <p id="estado-mapa-reporte" class="aviso-info">Cargando contenedores...</p>
                             <div>
                                 <label style="font-weight:bold; font-size:0.85rem;">Estado del Contenedor:</label>
                                 <select id="inp-estado" class="campo-entrada" required>
-                                    <option value="Lleno" ${previos.estado_contenedor === 'Lleno' ? 'selected' : ''}>Lleno</option>
-                                    <option value="Desbordado" ${previos.estado_contenedor === 'Desbordado' ? 'selected' : ''}>Desbordado</option>
-                                    <option value="Roto / Dañado" ${previos.estado_contenedor === 'Roto / Dañado' ? 'selected' : ''}>Roto / Dañado</option>
+                                    <option value="desborde" ${previos.estado_contenedor === 'desborde' ? 'selected' : ''}>Desbordado</option>
+                                    <option value="roto" ${previos.estado_contenedor === 'roto' ? 'selected' : ''}>Roto / Dañado</option>
                                 </select>
                             </div>
                             <div>
@@ -1104,6 +1118,7 @@
                                     <option value="Reciclable" ${previos.tipo_basura === 'Reciclable' ? 'selected' : ''}>Reciclable</option>
                                 </select>
                             </div>
+                            <div><label for="inp-descripcion">Descripción</label><textarea id="inp-descripcion" class="campo-entrada" required>${escaparHtml(previos.descripcion || '')}</textarea></div>
                             <button type="button" id="btn-enviar-incidencia" class="btn-mini" style="align-self: flex-start;">Enviar Reporte</button>
                         </form>
                     </div>
@@ -1111,14 +1126,49 @@
             `;
 
             const inputUbicacion = document.getElementById('inp-ubicacion');
+            const inputContenedor = document.getElementById('inp-contenedor');
+            const mapa = L.map('mapa-contenedores-reporte').setView([-34.9011, -56.1645], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(mapa);
+
+            apiFetch('../Backend/api/gestion/contenedores.php').then(async function(respuesta) {
+                const contenedores = respuesta.data || [];
+                const marcadores = {};
+                const puntos = [];
+                for (const contenedor of contenedores) {
+                    const coords = await geocodificar(contenedor.ubicacion);
+                    if (!coords) continue;
+                    const marcador = L.marker([coords.lat, coords.lon]).addTo(mapa);
+                    marcador.bindPopup(`<strong>Contenedor #${escaparHtml(contenedor.id)}</strong><br>${escaparHtml(contenedor.ubicacion)}<br><button type="button" data-contenedor="${escaparHtml(contenedor.id)}">Seleccionar</button>`);
+                    marcador.on('popupopen', function() {
+                        const boton = document.querySelector(`[data-contenedor="${contenedor.id}"]`);
+                        if (boton) boton.onclick = function() {
+                            inputContenedor.value = contenedor.id;
+                            inputUbicacion.value = contenedor.ubicacion;
+                            mapa.closePopup();
+                            document.getElementById('estado-mapa-reporte').textContent = `Contenedor #${contenedor.id} seleccionado.`;
+                        };
+                    });
+                    marcadores[contenedor.id] = marcador;
+                    puntos.push([coords.lat, coords.lon]);
+                    if (String(previos.contenedor_id) === String(contenedor.id)) {
+                        inputContenedor.value = contenedor.id;
+                        inputUbicacion.value = contenedor.ubicacion;
+                    }
+                }
+                if (puntos.length) mapa.fitBounds(puntos, { padding: [20, 20] });
+                document.getElementById('estado-mapa-reporte').textContent = contenedores.length ? 'Seleccioná un marcador para asociarlo al reporte.' : 'No hay contenedores disponibles.';
+            }).catch(function() {
+                document.getElementById('estado-mapa-reporte').textContent = 'No se pudieron cargar los contenedores.';
+            });
 
             document.getElementById("btn-enviar-incidencia").addEventListener("click", function() {
                 const ubi = inputUbicacion.value.trim();
+                const contenedorId = inputContenedor.value;
                 const est = document.getElementById("inp-estado").value;
                 const tip = document.getElementById("inp-tipo").value;
 
-                if (!ubi) {
-                    alert("Por favor ingrese la ubicación.");
+                if (!ubi || !contenedorId) {
+                    alert("Seleccioná un contenedor en el mapa.");
                     return;
                 }
 
@@ -1134,7 +1184,9 @@
                 renderPreviewIncidencia({
                     ubicacion: ubi,
                     estado_contenedor: est,
-                    tipo_basura: tip
+                    tipo_basura: tip,
+                    descripcion: document.getElementById('inp-descripcion').value.trim(),
+                    contenedor_id: contenedorId
                 });
             });
         }
@@ -1173,6 +1225,8 @@
                 renderReportarIncidencia({
                     ubicacion: datos.ubicacion,
                     estado_contenedor: datos.estado_contenedor,
+                    descripcion: datos.descripcion,
+                    contenedor_id: datos.contenedor_id,
                     tipo_basura: datos.tipo_basura
                 });
             });
@@ -1255,7 +1309,9 @@
                     body: JSON.stringify({
                         ubicacion: ubicacionFinal,
                         estado_contenedor: datos.estado_contenedor,
-                        tipo_basura: datos.tipo_basura,
+                        descripcion: datos.descripcion,
+                    contenedor_id: datos.contenedor_id,
+                    tipo_basura: datos.tipo_basura,
                         usuario_id: sesion.id,
                         latitud: coordsFinal.lat,
                         longitud: coordsFinal.lon
@@ -1299,10 +1355,10 @@
                 const ok = estado === 'INCIDENCIA SOLUCIONADA';
                 html += `
                     <tr>
-                        <td>#${inc.id}</td>
-                        <td><strong>${inc.ubicacion}</strong></td>
-                        <td>${inc.estado_contenedor}</td>
-                        <td>${inc.tipo_basura}</td>
+                        <td>#${escaparHtml(inc.id)}</td>
+                        <td><strong>${escaparHtml(inc.ubicacion)}</strong></td>
+                        <td>${escaparHtml(inc.estado_contenedor)}</td>
+                        <td>${escaparHtml(inc.tipo_basura)}</td>
                         <td><span class="badge-estado ${alerta ? 'badge-alerta' : (ok ? 'badge-ok' : '')}">${estado}</span></td>
                     </tr>
                 `;
@@ -1352,7 +1408,7 @@
             `;
 
             apiFetch('../Backend/api/recoleccion/incidencias.php').then(function(resp) {
-                const mias = (resp.data || []).filter(i => String(i.cuadrilla_id) === String(sesion.id));
+                const mias = (resp.data || []).filter(i => String(i.cuadrilla_id) === String(sesion.cuadrilla_id));
                 document.getElementById('contenedor-asignadas').innerHTML = mias.length
                     ? tablaIncidenciasBasica(mias)
                     : "<p style='color:#64748b;'>Todavía no tenés incidencias asignadas.</p>";
@@ -1379,7 +1435,7 @@
                 const div = document.getElementById('contenedor-tabla-cuadrilla');
                 const pendientes = (respuesta.data || []).filter(function(inc) {
                     return (inc.estado_incidencia || '').toLowerCase() === 'en curso'
-                        && String(inc.cuadrilla_id) === String(sesion.id);
+                        && String(inc.cuadrilla_id) === String(sesion.cuadrilla_id);
                 });
 
                 if (pendientes.length === 0) {
@@ -1404,11 +1460,11 @@
                 pendientes.forEach(function(inc) {
                     html += `
                         <tr>
-                            <td>#${inc.id}</td>
-                            <td>${inc.ubicacion}</td>
+                            <td>#${escaparHtml(inc.id)}</td>
+                            <td>${escaparHtml(inc.ubicacion)}</td>
                             <td>${inc.matricula_camion || '-'}</td>
-                            <td>${inc.comentario_operario || '-'}</td>
-                            <td><button class="btn-mini btn-resolver" data-id="${inc.id}">Marcar como resuelta</button></td>
+                            <td>${escaparHtml(inc.comentario_operario || '-')}</td>
+                            <td><button class="btn-mini btn-resolver" data-id="${escaparHtml(inc.id)}">Marcar como resuelta</button></td>
                         </tr>
                     `;
                 });
@@ -1418,7 +1474,7 @@
 
                 div.querySelectorAll('.btn-resolver').forEach(function(btn) {
                     btn.addEventListener('click', function() {
-                        apiFetch('../Backend/api/recoleccion/incidencias.php?id=' + encodeURIComponent(btn.dataset.id) + '&accion=resolver', { method: 'PUT' }).then(function(data) { alert(data.message); cargarIncidenciasCuadrilla(); })
+                        apiFetch('../Backend/api/recoleccion/incidencias.php?id=' + encodeURIComponent(btn.dataset.id) + '&accion=resolver', { method: 'PUT', body:JSON.stringify({solucion:prompt('Describí la solución aplicada:') || ''}) }).then(function(data) { alert(data.message); cargarIncidenciasCuadrilla(); })
                         .catch(function() { alert('Error al resolver la incidencia.'); });
                     });
                 });
@@ -1442,7 +1498,7 @@
                 apiFetch('../Backend/api/recoleccion/camiones.php')
             ]).then(function(res) {
                 const asignadas = (res[0].data || []).filter(function(i) {
-                    return String(i.cuadrilla_id) === String(sesion.id) && (i.estado_incidencia || '').toLowerCase() === 'en curso';
+                    return String(i.cuadrilla_id) === String(sesion.cuadrilla_id) && (i.estado_incidencia || '').toLowerCase() === 'en curso';
                 });
                 const camiones = res[1].data || [];
                 const div = document.getElementById('contenedor-camion-recursos');
@@ -1470,11 +1526,11 @@
                     const camion = camiones.find(function(c) { return c.matricula === inc.matricula_camion; });
                     html += `
                         <tr>
-                            <td>#${inc.id} — ${inc.ubicacion}</td>
+                            <td>#${escaparHtml(inc.id)} — ${escaparHtml(inc.ubicacion)}</td>
                             <td>${inc.matricula_camion || '-'}</td>
                             <td>${camion ? (camion.capacidad_carga ?? '-') : '-'}</td>
                             <td>${camion ? camion.estado : '-'}</td>
-                            <td>${inc.comentario_operario || '-'}</td>
+                            <td>${escaparHtml(inc.comentario_operario || '-')}</td>
                         </tr>
                     `;
                 });
@@ -1496,7 +1552,7 @@
                 <div class="seccion-bloque">
                     <h3>Centro de Acopio / Vertedero Asignado</h3>
                     <p class="descripcion">Centros de acopio disponibles dentro de tu área de trabajo.</p>
-                    <div class="aviso-info">El sistema aún no asigna un único centro por operario: se muestran todos los centros de acopio registrados.</div>
+                    <div class="aviso-info">Se muestran únicamente las instalaciones asignadas a tu cuenta.</div>
                     <div id="contenedor-centros-operario">Cargando...</div>
                 </div>
             `;
@@ -1512,7 +1568,7 @@
 
                 let html = `<table class="tabla-api"><thead><tr><th>Nombre</th><th>Ubicación</th><th>Maquinaria</th><th>Estado</th></tr></thead><tbody>`;
                 centros.forEach(function(c) {
-                    html += `<tr><td>${c.nombre}</td><td>${c.ubicacion}</td><td>${c.maquinaria || '-'}</td><td><span class="badge-estado ${c.estado === 'Operativo' ? 'badge-ok' : 'badge-alerta'}">${c.estado}</span></td></tr>`;
+                    html += `<tr><td>${escaparHtml(c.nombre)}</td><td>${escaparHtml(c.ubicacion)}</td><td>${c.maquinaria || '-'}</td><td><span class="badge-estado ${c.estado === 'Operativo' ? 'badge-ok' : 'badge-alerta'}">${escaparHtml(c.estado)}</span></td></tr>`;
                 });
                 html += `</tbody></table>`;
                 div.innerHTML = html;
@@ -1543,7 +1599,7 @@
                 }
                 let html = `<table class="tabla-api"><thead><tr><th>Centro</th><th>Estado operativo</th><th>Maquinaria disponible</th></tr></thead><tbody>`;
                 centros.forEach(function(c) {
-                    html += `<tr><td>${c.nombre}</td><td><span class="badge-estado ${c.estado === 'Operativo' ? 'badge-ok' : 'badge-alerta'}">${c.estado}</span></td><td>${c.maquinaria || '-'}</td></tr>`;
+                    html += `<tr><td>${escaparHtml(c.nombre)}</td><td><span class="badge-estado ${c.estado === 'Operativo' ? 'badge-ok' : 'badge-alerta'}">${escaparHtml(c.estado)}</span></td><td>${c.maquinaria || '-'}</td></tr>`;
                 });
                 html += `</tbody></table>`;
                 div.innerHTML = html;
@@ -1572,7 +1628,6 @@
                 document.getElementById('contenedor-tipos-residuo').innerHTML = "<p style='color:red;'>Error al cargar los tipos de residuo.</p>";
             });
         }
-        vincularMenu('menu-capacidad-residuos', renderCapacidadResiduos);
 
         function renderGestionarMaquinaria() {
             espacio.innerHTML = `
@@ -1619,7 +1674,7 @@
                     select.innerHTML = '<option value="">No hay centros registrados</option>';
                     return;
                 }
-                select.innerHTML = centros.map(function(c) { return `<option value="${c.id}">${c.nombre}</option>`; }).join('');
+                select.innerHTML = centros.map(function(c) { return `<option value="${escaparHtml(c.id)}">${escaparHtml(c.nombre)}</option>`; }).join('');
                 cargarCentroEnForm(centros[0].id);
             }).catch(function() {
                 select.innerHTML = '<option value="">Error al cargar los centros</option>';
@@ -1652,7 +1707,6 @@
                 }).catch(function() { alert('Error al actualizar la maquinaria.'); });
             });
         }
-        vincularMenu('menu-gestionar-maquinaria', renderGestionarMaquinaria);
 
         function renderReportesArea() {
             espacio.innerHTML = `
@@ -1695,7 +1749,6 @@
                 document.getElementById('reportes-area-contenido').innerHTML = "<p style='color:red;'>Error al cargar los reportes.</p>";
             });
         }
-        vincularMenu('menu-reportes-area', renderReportesArea);
 
         // ==================================================
         //  ============  SECCIÓN ADMINISTRADOR  ============
@@ -1712,20 +1765,23 @@
             const requeridoAhora = c.requerido !== false && !(c.requeridoSoloAlCrear && esEdicion);
 
             if (valor === '') {
-                return requeridoAhora ? `${c.label} es un campo obligatorio.` : null;
+                return requeridoAhora ? `${escaparHtml(c.label)} es un campo obligatorio.` : null;
             }
 
+            if (c.tipo==='password' && !validarPassword(valor)) return mensajePassword;
+            if (c.maxLength && valor.length>c.maxLength) return `${c.label}: máximo ${c.maxLength} caracteres.`;
+            if (c.tipo==='select' && !c.opciones.includes(valor)) return `${c.label}: opción inválida.`;
             if (c.minLength && valor.length < c.minLength) {
-                return `${c.label} debe tener al menos ${c.minLength} caracteres.`;
+                return `${escaparHtml(c.label)} debe tener al menos ${c.minLength} caracteres.`;
             }
             if (c.esEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) {
-                return `${c.label} no tiene un formato de correo electrónico válido.`;
+                return `${escaparHtml(c.label)} no tiene un formato de correo electrónico válido.`;
             }
             if (c.esCedula && !validarCedulaUruguaya(valor)) {
-                return `${c.label} no es una Cédula de Identidad uruguaya válida.`;
+                return `${escaparHtml(c.label)} no es una Cédula de Identidad uruguaya válida.`;
             }
-            if (c.numeroPositivo && (isNaN(Number(valor)) || Number(valor) <= 0)) {
-                return `${c.label} debe ser un número mayor a cero.`;
+            if (c.numeroPositivo && (!Number.isFinite(Number(valor)) || Number(valor) <= 0 || Number(valor)>99999999.99)) {
+                return `${escaparHtml(c.label)} debe ser un número mayor a cero.`;
             }
             return null;
         }
@@ -1738,13 +1794,13 @@
                         return `<option value="${o}">${o}</option>`;
                     }).join('');
                     return `<div>
-                        <label style="font-weight:bold; font-size:0.85rem;">${c.label}:</label>
-                        <select id="crud-${c.name}" class="campo-entrada">${opciones}</select>
+                        <label style="font-weight:bold; font-size:0.85rem;">${escaparHtml(c.label)}:</label>
+                        <select id="crud-${escaparHtml(c.name)}" class="campo-entrada">${opciones}</select>
                     </div>`;
                 }
                 return `<div>
-                    <label style="font-weight:bold; font-size:0.85rem;">${c.label}:</label>
-                    <input type="${c.tipo || 'text'}" id="crud-${c.name}" class="campo-entrada" placeholder="${c.placeholder || ''}" ${esRequerido ? 'required' : ''} ${c.minLength ? `minlength="${c.minLength}"` : ''}>
+                    <label style="font-weight:bold; font-size:0.85rem;">${escaparHtml(c.label)}:</label>
+                    <input type="${c.tipo || 'text'}" id="crud-${escaparHtml(c.name)}" class="campo-entrada" placeholder="${c.placeholder || ''}" ${esRequerido ? 'required' : ''} ${c.minLength ? `minlength="${c.minLength}"` : ''}>
                 </div>`;
             }).join('');
 
@@ -1843,9 +1899,10 @@
 
                         div.querySelectorAll('.crud-eliminar').forEach(function(btn) {
                             btn.addEventListener('click', function() {
-                                if (!confirm('¿Seguro que querés eliminar este registro?')) return;
+                                const motivo=prompt('Motivo de la baja (el historial se conserva):');
+                                if (!motivo || !motivo.trim()) return;
 
-                                apiFetch(`${cfg.endpoint}?${cfg.idParam}=${encodeURIComponent(btn.dataset.id)}`, { method: 'DELETE' })
+                                apiFetch(`${cfg.endpoint}?${cfg.idParam}=${encodeURIComponent(btn.dataset.id)}&motivo=${encodeURIComponent(motivo)}`, { method: 'DELETE' })
                                     .then(function(data) { alert(data.message); cargarListado(); })
                                     .catch(function() { alert('Error al eliminar el registro.'); });
                             });
@@ -1931,17 +1988,19 @@
             endpoint: '../Backend/api/usuarios/usuarios.php',
             idParam: 'id',
             campos: [
-                { name: 'nombre', label: 'Nombre completo', tipo: 'text', minLength: 3 },
-                { name: 'email', label: 'Email', tipo: 'email', esEmail: true },
-                { name: 'cedula', label: 'Cédula (solo al crear)', tipo: 'text', soloCreacion: true, esCedula: true },
-                { name: 'password', label: 'Contraseña (vacío = no cambiar)', tipo: 'password', minLength: 6, requeridoSoloAlCrear: true },
-                { name: 'rol', label: 'Rol', tipo: 'select', opciones: ['vecino', 'operario', 'cuadrilla', 'administrador'] }
+                { name: 'nombre', label: 'Nombre completo', tipo: 'text', minLength: 3, maxLength:100 },
+                { name: 'email', label: 'Email', tipo: 'email', esEmail: true, maxLength:100 },
+                { name: 'cedula', label: 'Cédula (solo al crear)', tipo: 'text', soloCreacion: true, esCedula: true, maxLength:20 },
+                { name: 'password', label: 'Contraseña (vacío = no cambiar)', tipo: 'password', minLength: 8, requeridoSoloAlCrear: true },
+                { name: 'estado_registro', label: 'Solicitud de registro', tipo: 'select', opciones: ['aprobado','pendiente','rechazado'] },
+                { name: 'rol', label: 'Rol', tipo: 'select', opciones: ['vecino', 'operario', 'chofer', 'recolector', 'administrador'] }
             ],
             columnas: [
                 { campo: 'nombre', label: 'Nombre' },
                 { campo: 'email', label: 'Email' },
                 { campo: 'cedula', label: 'Cédula' },
-                { campo: 'rol', label: 'Rol' }
+                { campo: 'rol', label: 'Rol' },
+                { campo: 'estado_registro', label: 'Solicitud' }
             ]
         };
 
@@ -1950,9 +2009,9 @@
             endpoint: '../Backend/api/recoleccion/camiones.php',
             idParam: 'matricula',
             campos: [
-                { name: 'matricula', label: 'Matrícula (solo al crear)', tipo: 'text', soloCreacion: true, minLength: 5 },
-                { name: 'capacidad_carga', label: 'Capacidad de carga (kg)', tipo: 'number', requerido: false, numeroPositivo: true },
-                { name: 'estado', label: 'Estado', tipo: 'select', opciones: ['Disponible', 'En Ruta', 'Mantenimiento'] }
+                { name: 'matricula', label: 'Matrícula (solo al crear)', tipo: 'text', soloCreacion: true, minLength: 5, maxLength:20 },
+                { name: 'capacidad_carga', label: 'Capacidad de carga (kg)', tipo: 'number', requerido: true, numeroPositivo: true },
+                { name: 'estado', label: 'Estado', tipo: 'select', opciones: ['Disponible', 'En Ruta', 'Mantenimiento', 'Fuera de servicio'] }
             ],
             columnas: [
                 { campo: 'matricula', label: 'Matrícula' },
@@ -1962,17 +2021,20 @@
         };
 
         const crudContenedores = {
-            titulo: 'Contenedores',
+            titulo: 'Contenedores en servicio y repuestos',
             endpoint: '../Backend/api/gestion/contenedores.php',
             idParam: 'id',
             campos: [
-                { name: 'ubicacion', label: 'Ubicación', tipo: 'text', minLength: 5 },
-                { name: 'estado', label: 'Estado', tipo: 'select', opciones: ['vacio', 'lleno', 'mantenimiento'] }
+                { name: 'ubicacion', label: 'Ubicación', tipo: 'text', minLength: 5, maxLength:255 },
+                { name: 'en_servicio', label: 'Destino: 1 = en servicio, 0 = repuesto', tipo: 'select', opciones: ['1','0'] },
+                { name: 'tipo_residuo', label: 'Tipo de residuo', tipo: 'text', maxLength:100 },
+                { name: 'estado', label: 'Estado', tipo: 'select', opciones: ['funcional', 'roto', 'desbordado'] }
             ],
             columnas: [
                 { campo: 'id', label: '# ID' },
                 { campo: 'ubicacion', label: 'Ubicación' },
-                { campo: 'estado', label: 'Estado' }
+                { campo: 'estado', label: 'Estado' },
+                { campo: 'en_servicio', label: 'Servicio (1) / repuesto (0)' }
             ]
         };
 
@@ -1981,15 +2043,17 @@
             endpoint: '../Backend/api/gestion/centros_acopio.php',
             idParam: 'id',
             campos: [
-                { name: 'nombre', label: 'Nombre del centro', tipo: 'text', minLength: 3 },
-                { name: 'ubicacion', label: 'Ubicación', tipo: 'text', minLength: 5 },
-                { name: 'maquinaria', label: 'Maquinaria disponible', tipo: 'text', requerido: false },
+                { name: 'nombre', label: 'Nombre del centro', tipo: 'text', minLength: 3, maxLength:150 },
+                { name: 'ubicacion', label: 'Ubicación', tipo: 'text', minLength: 5, maxLength:255 },
+                { name: 'capacidad', label: 'Capacidad máxima (m³)', tipo: 'number', numeroPositivo: true },
+                { name: 'tipo_centro', label: 'Tipo de instalación', tipo: 'select', opciones: ['acopio','vertedero'] },
                 { name: 'estado', label: 'Estado', tipo: 'select', opciones: ['Operativo', 'Mantenimiento', 'Cerrado'] }
             ],
             columnas: [
                 { campo: 'nombre', label: 'Nombre' },
                 { campo: 'ubicacion', label: 'Ubicación' },
-                { campo: 'maquinaria', label: 'Maquinaria' },
+                { campo: 'capacidad', label: 'Capacidad (m³)' },
+                { campo: 'capacidad_ocupada', label: 'Ocupada (m³)' },
                 { campo: 'estado', label: 'Estado' }
             ]
         };
@@ -2020,11 +2084,11 @@
         function cargarAsignacionCuadrillas() {
             Promise.all([
                 apiFetch('../Backend/api/recoleccion/camiones.php'),
-                apiFetch('../Backend/api/usuarios/usuarios.php'),
+                apiFetch('../Backend/api/recoleccion/cuadrillas.php'),
                 apiFetch('../Backend/api/recoleccion/incidencias.php')
             ]).then(function(res) {
                 const camiones = res[0].data || [];
-                const cuadrillas = (res[1].data || []).filter(function(u) { return u.rol === 'cuadrilla'; });
+                const cuadrillas = res[1].data || [];
                 const incidencias = res[2].data || [];
 
                 // Matrículas con al menos una incidencia "en curso" en este
@@ -2186,26 +2250,26 @@
 
                     if (estado === 'abierta') {
                         const opcionesCuadrillaCamion = camionesConCuadrillaDisponible.map(function(c) {
-                            return `<option value="${c.matricula}" data-cuadrilla-id="${c.cuadrilla_id}">${escaparHtml(c.cuadrilla_nombre)} — ${escaparHtml(c.matricula)}</option>`;
+                            return `<option value="${escaparHtml(c.matricula)}" data-cuadrilla-id="${escaparHtml(c.cuadrilla_id)}">${escaparHtml(c.cuadrilla_nombre)} — ${escaparHtml(c.matricula)}</option>`;
                         }).join('');
                         accionHtml = `
                             <div style="display:flex; flex-direction:column; gap:6px; min-width:220px;">
-                                <select class="campo-entrada asignar-cuadrilla-camion" data-id="${inc.id}" style="padding:6px;">${opcionesCuadrillaCamion || '<option value="">Sin cuadrillas con camión disponible</option>'}</select>
-                                <input type="text" class="campo-entrada asignar-comentario" data-id="${inc.id}" placeholder="Indicación para la cuadrilla" style="padding:6px;">
-                                <button class="btn-mini btn-asignar" data-id="${inc.id}" style="padding:6px 10px; font-size:0.8rem;">Asignar logística</button>
+                                <select class="campo-entrada asignar-cuadrilla-camion" data-id="${escaparHtml(inc.id)}" style="padding:6px;">${opcionesCuadrillaCamion || '<option value="">Sin cuadrillas con camión disponible</option>'}</select>
+                                <input type="text" class="campo-entrada asignar-comentario" data-id="${escaparHtml(inc.id)}" placeholder="Indicación para la cuadrilla" style="padding:6px;">
+                                <button class="btn-mini btn-asignar" data-id="${escaparHtml(inc.id)}" style="padding:6px 10px; font-size:0.8rem;">Asignar logística</button>
                             </div>
                         `;
                     } else if (estado === 'en curso') {
-                        accionHtml = `<button class="btn-mini btn-resolver-admin" data-id="${inc.id}" style="padding:6px 10px; font-size:0.8rem;">Marcar resuelta</button>`;
+                        accionHtml = `<button class="btn-mini btn-resolver-admin" data-id="${escaparHtml(inc.id)}" style="padding:6px 10px; font-size:0.8rem;">Marcar resuelta</button>`;
                     } else {
                         accionHtml = '<span style="color:#94a3b8;">Sin acciones</span>';
                     }
 
                     html += `
                         <tr>
-                            <td>#${inc.id}</td>
-                            <td>${inc.ubicacion}</td>
-                            <td>${inc.estado_contenedor} — ${inc.tipo_basura}</td>
+                            <td>#${escaparHtml(inc.id)}</td>
+                            <td>${escaparHtml(inc.ubicacion)}</td>
+                            <td>${escaparHtml(inc.estado_contenedor)} — ${escaparHtml(inc.tipo_basura)}</td>
                             <td><span class="badge-estado ${estado === 'abierta' ? 'badge-alerta' : 'badge-ok'}">${estado.toUpperCase()}</span></td>
                             <td>${inc.cuadrilla_id ? '#' + inc.cuadrilla_id : '-'} / ${inc.matricula_camion || '-'}</td>
                             <td>${accionHtml}</td>
@@ -2244,7 +2308,7 @@
 
                 div.querySelectorAll('.btn-resolver-admin').forEach(function(btn) {
                     btn.addEventListener('click', function() {
-                        apiFetch('../Backend/api/recoleccion/incidencias.php?id=' + encodeURIComponent(btn.dataset.id) + '&accion=resolver', { method: 'PUT' }).then(function(data) { alert(data.message); cargarGestionIncidencias(); })
+                        apiFetch('../Backend/api/recoleccion/incidencias.php?id=' + encodeURIComponent(btn.dataset.id) + '&accion=resolver', { method: 'PUT', body:JSON.stringify({solucion:prompt('Describí la solución aplicada:') || ''}) }).then(function(data) { alert(data.message); cargarGestionIncidencias(); })
                         .catch(function() { alert('Error al resolver la incidencia.'); });
                     });
                 });
@@ -2279,9 +2343,9 @@
                     });
                     html += `
                         <tr>
-                            <td>${cam.matricula}</td>
-                            <td><span class="badge-estado ${cam.estado === 'En Ruta' ? 'badge-alerta' : 'badge-ok'}">${cam.estado}</span></td>
-                            <td>${inc ? `#${inc.id} — ${inc.ubicacion}` : '-'}</td>
+                            <td>${escaparHtml(cam.matricula)}</td>
+                            <td><span class="badge-estado ${cam.estado === 'En Ruta' ? 'badge-alerta' : 'badge-ok'}">${escaparHtml(cam.estado)}</span></td>
+                            <td>${inc ? `#${escaparHtml(inc.id)} — ${escaparHtml(inc.ubicacion)}` : '-'}</td>
                             <td>${inc && inc.cuadrilla_id ? '#' + inc.cuadrilla_id : '-'}</td>
                         </tr>
                     `;
@@ -2292,7 +2356,6 @@
                 document.getElementById('admin-rutas-contenido').innerHTML = "<p style='color:red;'>Error al cargar las rutas.</p>";
             });
         }
-        vincularMenu('menu-gestionar-rutas', renderGestionRutas);
 
         // ---- Mapa general (incluye flota) ----
         vincularMenu('menu-mapa-general', function() { renderMapa(true); });
@@ -2355,11 +2418,12 @@
                 document.getElementById('admin-reportes-contenido').innerHTML = "<p style='color:red;'>Error al cargar los reportes.</p>";
             });
         }
-        vincularMenu('menu-reportes-estadisticas', renderReportesEstadisticas);
 
         // ==================================================
         //  CARGA INICIAL: Dashboard por defecto
         // ==================================================
+        const {instalarOperaciones} = await import('./operaciones.js?v=2');
+        instalarOperaciones({apiFetch,espacio,sesion,vincularMenu,escaparHtml});
         renderDashboard();
     </script>
 </body>

@@ -46,10 +46,17 @@ class Incidencia
         return $stmt->fetchAll();
     }
 
+    public function contarActivasPorUsuario(int $usuarioId): int
+    {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM incidencias WHERE usuario_id = ? AND estado_incidencia <> 'cerrada'");
+        $stmt->execute([$usuarioId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     /** Busca una incidencia puntual por su ID. */
     public function buscarPorId(int $id)
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM incidencias WHERE id = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM incidencias WHERE id = ? FOR UPDATE");
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
@@ -66,10 +73,10 @@ class Incidencia
     }
 
     /** La Cuadrilla marca la incidencia como resuelta. */
-    public function resolver(int $id): bool
+    public function resolver(int $id, string $solucion): bool
     {
-        $stmt = $this->pdo->prepare("UPDATE incidencias SET estado_incidencia = 'incidencia solucionada' WHERE id = ?");
-        return $stmt->execute([$id]);
+        $stmt = $this->pdo->prepare("UPDATE incidencias SET estado_incidencia = 'cerrada', solucion=?, fecha_cierre=CURRENT_TIMESTAMP WHERE id = ?");
+        return $stmt->execute([$solucion,$id]);
     }
 
     /**
@@ -86,4 +93,32 @@ class Incidencia
         $stmt->execute([$matricula]);
         return (int) $stmt->fetchColumn() > 0;
     }
+
+    public function describir(int $id, string $descripcion): void
+    {
+        $this->pdo->prepare('UPDATE incidencias SET descripcion=? WHERE id=?')->execute([$descripcion,$id]);
+    }
+
+    public function asociarContenedor(int $id, int $contenedorId): void
+    {
+        $this->pdo->prepare('INSERT INTO sobre(contenedor_id,incidencia_id) VALUES (?,?)')->execute([$contenedorId,$id]);
+    }
+
+    public function listarPorCuadrilla(?int $id): array
+    {
+        $q=$this->pdo->prepare('SELECT * FROM incidencias WHERE cuadrilla_id=? ORDER BY id DESC');
+        $q->execute([$id]);
+        return $q->fetchAll();
+    }
+
+    public function cerrarReclamos(int $id): void
+    {
+        $this->pdo->prepare("UPDATE reclamos SET estado='cerrado' WHERE incidencia_id=?")->execute([$id]);
+    }
+
+    public function registrarHistorial(int $id, int $autor, ?string $anterior, string $nuevo, string $observacion): void
+    {
+        $this->pdo->prepare('INSERT INTO historial_incidencias(incidencia_id,usuario_id,estado_anterior,estado_nuevo,observacion) VALUES (?,?,?,?,?)')->execute([$id,$autor,$anterior,$nuevo,$observacion]);
+    }
+
 }

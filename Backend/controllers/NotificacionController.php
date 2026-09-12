@@ -24,6 +24,7 @@ class NotificacionController
     /** Notificaciones privadas de un usuario + anuncios públicos. */
     public function listar(array $datos): array
     {
+        $datos['usuario_id'] = $GLOBALS['actor']['id'];
         if (empty($datos['usuario_id'])) {
             return ["status" => "error", "message" => "Falta el ID del usuario.", "_code" => 400];
         }
@@ -57,6 +58,8 @@ class NotificacionController
         if (!$this->notificacionModel->buscarPorId($id)) {
             return ["status" => "error", "message" => "La notificación no existe.", "_code" => 404];
         }
+        $n=$this->notificacionModel->buscarPorId($id);
+        if ($n['usuario_id'] !== null && (int)$n['usuario_id'] !== (int)$GLOBALS['actor']['id']) return ['status'=>'error','message'=>'Notificación ajena.','_code'=>403];
         $this->notificacionModel->marcarLeida($id);
         return ["status" => "success", "message" => "Notificación marcada como leída."];
     }

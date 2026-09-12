@@ -12,12 +12,14 @@ require_once __DIR__ . '/../models/Incidencia.php';
 class CamionController
 {
     private Camion $camionModel;
+    private PDO $pdo;
     private Usuario $usuarioModel;
     private Incidencia $incidenciaModel;
-    private array $estadosPermitidos = ['Disponible', 'En Ruta', 'Mantenimiento'];
+    private array $estadosPermitidos = ['Disponible', 'En Ruta', 'Mantenimiento', 'Fuera de servicio'];
 
     public function __construct(PDO $pdo)
     {
+        $this->pdo = $pdo;
         $this->camionModel = new Camion($pdo);
         $this->usuarioModel = new Usuario($pdo);
         $this->incidenciaModel = new Incidencia($pdo);
@@ -55,7 +57,7 @@ class CamionController
             return ["status" => "error", "message" => "Ya existe un camión registrado con esa matrícula.", "_code" => 409];
         }
 
-        if (isset($datos['capacidad_carga']) && $datos['capacidad_carga'] !== '' && (float) $datos['capacidad_carga'] <= 0) {
+        if (!isset($datos['capacidad_carga']) || !is_numeric($datos['capacidad_carga']) || (float)$datos['capacidad_carga']<=0) {
             return ["status" => "error", "message" => "La capacidad de carga debe ser un número mayor a cero.", "_code" => 400];
         }
 
@@ -63,7 +65,10 @@ class CamionController
             ? (float) $datos['capacidad_carga']
             : null;
 
+        $estado = $datos['estado'] ?? 'Disponible';
+        if (!in_array($estado, $this->estadosPermitidos,true)) return ['status'=>'error','message'=>'Estado inválido.','_code'=>400];
         $this->camionModel->crear($matricula, $capacidad);
+        $this->camionModel->actualizarEstado($matricula, $estado);
 
         return ["status" => "success", "message" => "Camión registrado de forma persistente.", "_code" => 201];
     }
@@ -83,7 +88,7 @@ class CamionController
             return ["status" => "error", "message" => "El estado '$estado' no es válido.", "_code" => 400];
         }
 
-        if (isset($datos['capacidad_carga']) && $datos['capacidad_carga'] !== '' && (float) $datos['capacidad_carga'] <= 0) {
+        if (!isset($datos['capacidad_carga']) || !is_numeric($datos['capacidad_carga']) || (float)$datos['capacidad_carga']<=0) {
             return ["status" => "error", "message" => "La capacidad de carga debe ser un número mayor a cero.", "_code" => 400];
         }
 
@@ -91,6 +96,7 @@ class CamionController
             ? (float) $datos['capacidad_carga']
             : null;
 
+        if ($this->incidenciaModel->tieneIncidenciasEnCurso($matricula) && $estado!=='En Ruta') return ['status'=>'error','message'=>'El camión tiene incidencias en curso.','_code'=>409];
         $this->camionModel->actualizar($matricula, $capacidad, $estado);
 
         return ["status" => "success", "message" => "Camión actualizado correctamente."];
@@ -102,6 +108,7 @@ class CamionController
             return ["status" => "error", "message" => "El camión no existe.", "_code" => 404];
         }
 
+        if ($this->incidenciaModel->tieneIncidenciasEnCurso($matricula)) return ['status'=>'error','message'=>'El camión tiene incidencias en curso.','_code'=>409];
         $this->camionModel->eliminar($matricula);
 
         return ["status" => "success", "message" => "Camión eliminado correctamente."];
@@ -111,7 +118,7 @@ class CamionController
      * Asigna (o reasigna) una cuadrilla a un camión de forma persistente.
      * Reglas:
      *  - El camión destino tiene que estar "Disponible".
-     *  - La cuadrilla tiene que ser un usuario con rol 'cuadrilla'.
+     *  - La cuadrilla debe existir como equipo disponible.
      *  - Si esa cuadrilla ya estaba en OTRO camión, se la libera de ahí
      *    primero — pero solo si ese otro camión no tiene ninguna
      *    incidencia "en curso" en este momento.
@@ -132,8 +139,8 @@ class CamionController
             return ["status" => "error", "message" => "Debe indicar la cuadrilla a asignar.", "_code" => 400];
         }
 
-        $cuadrilla = $this->usuarioModel->buscarPorId($cuadrillaId);
-        if (!$cuadrilla || $cuadrilla['rol'] !== 'cuadrilla') {
+        $cuadrilla = $this->camionModel->buscarCuadrillaDisponible($cuadrillaId);
+        if (!$cuadrilla) {
             return ["status" => "error", "message" => "La cuadrilla indicada no es válida.", "_code" => 400];
         }
 

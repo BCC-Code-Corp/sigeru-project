@@ -14,10 +14,11 @@
             <h2>Iniciar Sesión</h2>
             <p>Accede al panel de control de SiGeRU</p>
             <p>Usuarios de prueba:</p>
-            <p>Vecino: vecino@sigeru.uy | Contraseña: sigeru</p>
-            <p>Administrador: admin@sigeru.uy | Contraseña: sigeru</p>
+            <p>Vecino: vecino@sigeru.uy | Contraseña: vecino123</p>
+            <p>Administrador: admin@sigeru.uy | Contraseña: admin123</p>
         </div>
 
+        <p id="aviso-registro" role="status"></p>
         <form id="form-login">
             <div class="grupo-campo">
                 <label for="email">Correo electrónico</label>
@@ -39,12 +40,14 @@
     </div>
 
     <script>
+        if (new URLSearchParams(location.search).get('registro')==='pendiente') document.getElementById('aviso-registro').textContent='Solicitud enviada. Un administrador debe aprobar tu cuenta antes de iniciar sesión.';
         document.getElementById('form-login').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btn-submit');
 
+            if (!email || email.length>100 || !password || password.length>72) { alert('Completá un email válido y la contraseña.'); return; }
             const originalText = btn.innerHTML;
 
             // Feedback animado en botón
@@ -64,10 +67,11 @@
             .then(data => {
                 if (data.status === 'success') {
                     btn.innerHTML = '<span class="spinner"></span> Iniciando...';
-                    localStorage.setItem('sesion_activa', JSON.stringify(data.usuario));
-                    setTimeout(() => {
-                        window.location.href = 'panel.html';
-                    }, 1000);
+                    const rol = String(data.usuario?.rol || '').trim().toLowerCase();
+                    const destino = ['administrador', 'admin'].includes(rol)
+                        ? 'backoffice.html'
+                        : 'panel.html';
+                    window.location.replace(destino);
                 } else {
                     alert(data.message);
                     btn.innerHTML = originalText;

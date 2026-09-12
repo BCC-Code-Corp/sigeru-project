@@ -33,11 +33,11 @@ class Notificacion
     public function listarParaUsuario(int $usuarioId): array
     {
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM notificaciones
-             WHERE usuario_id = ? OR usuario_id IS NULL
+            "SELECT n.*, (l.usuario_id IS NOT NULL) AS leida FROM notificaciones n LEFT JOIN notificaciones_leidas l ON l.notificacion_id=n.id AND l.usuario_id=?
+             WHERE n.usuario_id = ? OR n.usuario_id IS NULL
              ORDER BY fecha_creacion DESC"
         );
-        $stmt->execute([$usuarioId]);
+        $stmt->execute([$usuarioId,$usuarioId]);
         return $stmt->fetchAll();
     }
 
@@ -60,7 +60,7 @@ class Notificacion
 
     public function marcarLeida(int $id): bool
     {
-        $stmt = $this->pdo->prepare("UPDATE notificaciones SET leida = 1 WHERE id = ?");
-        return $stmt->execute([$id]);
+        $stmt = $this->pdo->prepare("INSERT IGNORE INTO notificaciones_leidas(notificacion_id,usuario_id) VALUES (?,?)");
+        return $stmt->execute([$id,$GLOBALS['actor']['id']]);
     }
 }

@@ -9,11 +9,12 @@
  */
 
 require_once __DIR__ . '/../models/Usuario.php';
+require_once __DIR__ . '/../core/Validacion.php';
 
 class UsuarioController
 {
     private Usuario $usuarioModel;
-    private array $rolesPermitidos = ['administrador', 'operario', 'cuadrilla', 'vecino'];
+    private array $rolesPermitidos = ['administrador', 'operario', 'chofer', 'recolector', 'vecino'];
 
     public function __construct(PDO $pdo)
     {
@@ -55,8 +56,8 @@ class UsuarioController
             return ["status" => "error", "message" => "El correo electrónico no tiene un formato válido.", "_code" => 400];
         }
 
-        if (strlen($datos['password']) < 6) {
-            return ["status" => "error", "message" => "La contraseña debe tener al menos 6 caracteres.", "_code" => 400];
+        if (!Validacion::password($datos['password'])) {
+            return ["status" => "error", "message" => Validacion::PASSWORD_MENSAJE, "_code" => 400];
         }
 
         $cedula = preg_replace('/[^0-9]/', '', $datos['cedula']);
@@ -74,8 +75,12 @@ class UsuarioController
             return ["status" => "error", "message" => "El rol '$rol' no es válido.", "_code" => 400];
         }
 
+        $this->validarDatosOperario($rol, $datos);
+
         $passwordHash = password_hash($datos['password'], PASSWORD_BCRYPT);
         $this->usuarioModel->crear(trim($datos['nombre']), $email, $cedula, $passwordHash, $rol);
+        $this->guardarDatosOperario($this->usuarioModel->ultimoId(), $rol, $datos);
+        if (isset($datos['estado_registro'])) $this->usuarioModel->estadoRegistro($this->usuarioModel->ultimoId(),$datos['estado_registro']);
 
         return ["status" => "success", "message" => "Usuario creado con éxito.", "_code" => 201];
     }
@@ -116,17 +121,44 @@ class UsuarioController
             }
         }
 
-        if (!empty($datos['password']) && strlen($datos['password']) < 6) {
-            return ["status" => "error", "message" => "La contraseña debe tener al menos 6 caracteres.", "_code" => 400];
+        if (!empty($datos['password']) && !Validacion::password($datos['password'])) {
+            return ["status" => "error", "message" => Validacion::PASSWORD_MENSAJE, "_code" => 400];
         }
 
+        if ($rol !== $usuario['rol']) $this->usuarioModel->validarCambioRol($id);
         $this->usuarioModel->actualizar($id, $nombre, $email, $rol);
+        $this->guardarDatosOperario($id, $rol, $datos);
+        if (isset($datos['estado_registro']) && $datos['estado_registro']!==$usuario['estado_registro']) $this->usuarioModel->estadoRegistro($id,$datos['estado_registro']);
 
         if (!empty($datos['password'])) {
             $this->usuarioModel->actualizarPassword($id, password_hash($datos['password'], PASSWORD_BCRYPT));
         }
 
         return ["status" => "success", "message" => "Usuario actualizado correctamente."];
+    }
+
+    private function guardarDatosOperario(int $id, string $rol, array $datos): void
+    {
+        if ($rol !== 'operario') {
+            $this->usuarioModel->guardarDatosOperario($id, null, null);
+            return;
+        }
+
+        $this->validarDatosOperario($rol, $datos);
+        $this->usuarioModel->guardarDatosOperario($id, (int)$datos['centro_id'], trim((string)$datos['especialidad']));
+    }
+
+    private function validarDatosOperario(string $rol, array $datos): void
+    {
+        if ($rol !== 'operario') return;
+        if (empty($datos['centro_id']) || !ctype_digit((string)$datos['centro_id']) || (int)$datos['centro_id'] <= 0) {
+            throw new DomainException('El operario debe tener un centro asignado.');
+        }
+        if (!$this->usuarioModel->centroExiste((int)$datos['centro_id'])) {
+            throw new DomainException('El centro asignado no existe o está inactivo.');
+        }
+        $especialidad = trim((string)($datos['especialidad'] ?? ''));
+        if ($especialidad === '' || strlen($especialidad) > 100) throw new DomainException('La especialidad del operario es obligatoria.');
     }
 
     /** DELETE — elimina un usuario por id. */
@@ -137,6 +169,7 @@ class UsuarioController
             return ["status" => "error", "message" => "El usuario no existe.", "_code" => 404];
         }
 
+        if ($id === (int)($GLOBALS['actor']['id'] ?? 0)) return ['status'=>'error','message'=>'No podés dar de baja tu propia cuenta.','_code'=>409];
         $this->usuarioModel->eliminar($id);
 
         return ["status" => "success", "message" => "Usuario eliminado correctamente."];

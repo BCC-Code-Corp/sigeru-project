@@ -9,6 +9,7 @@
  */
 
 require_once __DIR__ . '/../models/Usuario.php';
+require_once __DIR__ . '/../core/Validacion.php';
 
 class AuthController
 {
@@ -29,10 +30,20 @@ class AuthController
         $email    = trim($datos['email']);
         $password = $datos['password'];
 
+        $this->usuarioModel->verificarIntentos($email);
         $usuario = $this->usuarioModel->buscarPorEmail($email);
 
         if ($usuario && password_verify($password, $usuario['password'])) {
+            if ($usuario['estado_registro']!=='aprobado') return ['status'=>'error','message'=>'Tu solicitud de registro todavía no está aprobada.','_code'=>403];
+            $this->usuarioModel->registrarIntento($email,true);
+            Sesion::iniciar();
+            session_regenerate_id(true);
+            $_SESSION['usuario_id'] = $usuario['id'];
+            $_SESSION['auth_version']=$usuario['auth_version'];
+            $_SESSION['actividad']=time();
+            $_SESSION['csrf'] = bin2hex(random_bytes(32));
             return [
+                'csrf' => $_SESSION['csrf'],
                 "status"  => "success",
                 "message" => "Sesión iniciada con éxito.",
                 "usuario" => [
@@ -44,6 +55,7 @@ class AuthController
             ];
         }
 
+        $this->usuarioModel->registrarIntento($email,false);
         return ["status" => "error", "message" => "Credenciales incorrectas o usuario no registrado.", "_code" => 401];
     }
 
@@ -63,8 +75,8 @@ class AuthController
             return ["status" => "error", "message" => "El correo electrónico no tiene un formato válido.", "_code" => 400];
         }
 
-        if (strlen($password) < 6) {
-            return ["status" => "error", "message" => "La contraseña debe tener al menos 6 caracteres.", "_code" => 400];
+        if (!Validacion::password($password)) {
+            return ["status" => "error", "message" => Validacion::PASSWORD_MENSAJE, "_code" => 400];
         }
 
         if (!Usuario::validarCedulaUruguaya($cedula)) {
@@ -77,10 +89,11 @@ class AuthController
 
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
         $this->usuarioModel->crear($nombre, $email, $cedula, $passwordHash, 'vecino');
+        $this->usuarioModel->estadoRegistro($this->usuarioModel->ultimoId(),'pendiente');
 
         return [
             "status"  => "success",
-            "message" => "Usuario registrado con éxito.",
+            "message" => "Solicitud registrada. Un administrador debe aprobarla antes de iniciar sesión.",
             "usuario" => [
                 "nombre" => $nombre,
                 "email"  => $email,

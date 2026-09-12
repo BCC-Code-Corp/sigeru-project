@@ -18,11 +18,11 @@ require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';
 require_once __DIR__ . '/../../controllers/NotificacionController.php';
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT');
-header('Access-Control-Allow-Headers: Content-Type');
+
+require_once __DIR__ . '/../../core/Sesion.php';
 
 try {
+    Sesion::proteger($pdo, 'notificaciones');
     $controlador = new NotificacionController($pdo);
     $metodo = $_SERVER['REQUEST_METHOD'];
 
@@ -34,7 +34,7 @@ try {
     }
 
     if ($metodo === 'POST') {
-        $datos = json_decode(file_get_contents('php://input'), true) ?? [];
+        $datos = Sesion::datos();
         Respuesta::enviarResultado($controlador->crearAnuncio($datos), 201);
     }
 

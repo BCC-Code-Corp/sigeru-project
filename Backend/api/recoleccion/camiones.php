@@ -17,7 +17,10 @@ require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';
 require_once __DIR__ . '/../../controllers/CamionController.php';
 
+require_once __DIR__ . '/../../core/Sesion.php';
+
 try {
+    Sesion::proteger($pdo, 'camiones');
     $controlador = new CamionController($pdo);
     $metodo = $_SERVER['REQUEST_METHOD'];
 
@@ -29,7 +32,7 @@ try {
     }
 
     if ($metodo === 'POST') {
-        $datos = json_decode(file_get_contents('php://input'), true) ?? [];
+        $datos = Sesion::datos();
         Respuesta::enviarResultado($controlador->crear($datos), 201);
     }
 
@@ -37,7 +40,7 @@ try {
         if (empty($_GET['matricula'])) {
             Respuesta::enviar(["status" => "error", "message" => "Falta la matrícula del camión."], 400);
         }
-        $datos = json_decode(file_get_contents('php://input'), true) ?? [];
+        $datos = Sesion::datos();
         $accion = $_GET['accion'] ?? '';
 
         if ($accion === 'asignar_cuadrilla') {

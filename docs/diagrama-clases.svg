@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="2250" viewBox="0 0 1500 2250">
+<rect width="100%" height="100%" fill="#f5f7fa"/>
+<style>text{font-family:Arial,sans-serif;fill:#172b3a}.title{font-size:30px;font-weight:bold}.head{font-size:22px;font-weight:bold}.method{font-size:17px}</style>
+<text x="45" y="50" class="title">SiGeRU · Clases implementadas por capa</text>
+<text x="45" y="82" font-size="17">PHP 8 / PDO · Operaciones principales · 12/09/2026</text>
+<text x="45" y="125" class="head">Controladores</text>
+<rect x="45" y="150" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M45 192h450" stroke="#739287"/>
+<text x="60" y="178" class="head">AuthController</text>
+<text x="60" y="218" class="method">+ login()</text>
+<text x="60" y="241" class="method">+ registro()</text>
+<rect x="45" y="395" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M45 437h450" stroke="#739287"/>
+<text x="60" y="423" class="head">CamionController</text>
+<text x="60" y="463" class="method">+ listar()</text>
+<text x="60" y="486" class="method">+ obtener()</text>
+<text x="60" y="509" class="method">+ crear()</text>
+<text x="60" y="532" class="method">+ actualizar()</text>
+<text x="60" y="555" class="method">+ eliminar()</text>
+<text x="60" y="578" class="method">+ asignarCuadrilla()</text>
+<text x="60" y="604" font-size="14">+ 1 métodos más en el diagrama completo</text>
+<rect x="45" y="640" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M45 682h450" stroke="#739287"/>
+<text x="60" y="668" class="head">CentroAcopioController</text>
+<text x="60" y="708" class="method">+ listar()</text>
+<text x="60" y="731" class="method">+ obtener()</text>
+<text x="60" y="754" class="method">+ crear()</text>
+<text x="60" y="777" class="method">+ actualizar()</text>
+<text x="60" y="800" class="method">+ eliminar()</text>
+<rect x="45" y="885" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M45 927h450" stroke="#739287"/>
+<text x="60" y="913" class="head">ContenedorController</text>
+<text x="60" y="953" class="method">+ listar()</text>
+<text x="60" y="976" class="method">+ obtener()</text>
+<text x="60" y="999" class="method">+ crear()</text>
+<text x="60" y="1022" class="method">+ actualizar()</text>
+<text x="60" y="1045" class="method">+ eliminar()</text>
+<rect x="45" y="1130" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M45 1172h450" stroke="#739287"/>
+<text x="60" y="1158" class="head">IncidenciaController</text>
+<text x="60" y="1198" class="method">+ crear()</text>
+<text x="60" y="1221" class="method">+ listar()</text>
+<text x="60" y="1244" class="method">+ listarPorUsuario()</text>
+<text x="60" y="1267" class="method">+ asignar()</text>
+<text x="60" y="1290" class="method">+ resolver()</text>
+<rect x="45" y="1375" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M45 1417h450" stroke="#739287"/>
+<text x="60" y="1403" class="head">NotificacionController</text>
+<text x="60" y="1443" class="method">+ listar()</text>
+<text x="60" y="1466" class="method">+ listarAnuncios()</text>
+<text x="60" y="1489" class="method">+ crearAnuncio()</text>
+<text x="60" y="1512" class="method">+ marcarLeida()</text>
+<rect x="45" y="1620" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M45 1662h450" stroke="#739287"/>
+<text x="60" y="1648" class="head">OperacionController</text>
+<text x="60" y="1688" class="method">+ atender()</text>
+<rect x="45" y="1865" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M45 1907h450" stroke="#739287"/>
+<text x="60" y="1893" class="head">UsuarioController</text>
+<text x="60" y="1933" class="method">+ listar()</text>
+<text x="60" y="1956" class="method">+ obtener()</text>
+<text x="60" y="1979" class="method">+ crear()</text>
+<text x="60" y="2002" class="method">+ actualizar()</text>
+<text x="60" y="2025" class="method">+ eliminar()</text>
+<text x="535" y="125" class="head">Modelos</text>
+<rect x="535" y="150" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M535 192h450" stroke="#739287"/>
+<text x="550" y="178" class="head">Camion</text>
+<text x="550" y="218" class="method">+ listarTodos()</text>
+<text x="550" y="241" class="method">+ buscarPorMatricula()</text>
+<text x="550" y="264" class="method">+ buscarPorCuadrilla()</text>
+<text x="550" y="287" class="method">+ crear()</text>
+<text x="550" y="310" class="method">+ actualizar()</text>
+<text x="550" y="333" class="method">+ actualizarEstado()</text>
+<text x="550" y="359" font-size="14">+ 4 métodos más en el diagrama completo</text>
+<rect x="535" y="395" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M535 437h450" stroke="#739287"/>
+<text x="550" y="423" class="head">CentroAcopio</text>
+<text x="550" y="463" class="method">+ listarTodos()</text>
+<text x="550" y="486" class="method">+ buscarPorId()</text>
+<text x="550" y="509" class="method">+ crear()</text>
+<text x="550" y="532" class="method">+ actualizar()</text>
+<text x="550" y="555" class="method">+ guardarCapacidad()</text>
+<text x="550" y="578" class="method">+ ultimoId()</text>
+<text x="550" y="604" font-size="14">+ 1 métodos más en el diagrama completo</text>
+<rect x="535" y="640" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M535 682h450" stroke="#739287"/>
+<text x="550" y="668" class="head">Contenedor</text>
+<text x="550" y="708" class="method">+ listarTodos()</text>
+<text x="550" y="731" class="method">+ buscarPorId()</text>
+<text x="550" y="754" class="method">+ crear()</text>
+<text x="550" y="777" class="method">+ actualizar()</text>
+<text x="550" y="800" class="method">+ eliminar()</text>
+<text x="550" y="823" class="method">+ asignadoEnCurso()</text>
+<text x="550" y="849" font-size="14">+ 1 métodos más en el diagrama completo</text>
+<rect x="535" y="885" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M535 927h450" stroke="#739287"/>
+<text x="550" y="913" class="head">Incidencia</text>
+<text x="550" y="953" class="method">+ crear()</text>
+<text x="550" y="976" class="method">+ listarTodas()</text>
+<text x="550" y="999" class="method">+ listarPorUsuario()</text>
+<text x="550" y="1022" class="method">+ buscarPorId()</text>
+<text x="550" y="1045" class="method">+ asignar()</text>
+<text x="550" y="1068" class="method">+ resolver()</text>
+<text x="550" y="1094" font-size="14">+ 6 métodos más en el diagrama completo</text>
+<rect x="535" y="1130" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M535 1172h450" stroke="#739287"/>
+<text x="550" y="1158" class="head">Notificacion</text>
+<text x="550" y="1198" class="method">+ crear()</text>
+<text x="550" y="1221" class="method">+ listarParaUsuario()</text>
+<text x="550" y="1244" class="method">+ listarAnuncios()</text>
+<text x="550" y="1267" class="method">+ buscarPorId()</text>
+<text x="550" y="1290" class="method">+ marcarLeida()</text>
+<rect x="535" y="1375" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M535 1417h450" stroke="#739287"/>
+<text x="550" y="1403" class="head">Operacion</text>
+<text x="550" y="1443" class="method">+ consultar()</text>
+<text x="550" y="1466" class="method">+ ejecutar()</text>
+<text x="550" y="1489" class="method">+ insertar()</text>
+<text x="550" y="1512" class="method">+ actualizar()</text>
+<text x="550" y="1535" class="method">+ exigir()</text>
+<text x="550" y="1558" class="method">+ reportes()</text>
+<text x="550" y="1584" font-size="14">+ 30 métodos más en el diagrama completo</text>
+<rect x="535" y="1620" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M535 1662h450" stroke="#739287"/>
+<text x="550" y="1648" class="head">Usuario</text>
+<text x="550" y="1688" class="method">+ buscarPorEmail()</text>
+<text x="550" y="1711" class="method">+ buscarPerfilPorEmail()</text>
+<text x="550" y="1734" class="method">+ buscarPorId()</text>
+<text x="550" y="1757" class="method">+ listarTodos()</text>
+<text x="550" y="1780" class="method">+ existeEmailOCedula()</text>
+<text x="550" y="1803" class="method">+ crear()</text>
+<text x="550" y="1829" font-size="14">+ 10 métodos más en el diagrama completo</text>
+<text x="1025" y="125" class="head">Servicios comunes</text>
+<rect x="1025" y="150" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M1025 192h450" stroke="#739287"/>
+<text x="1040" y="178" class="head">Respuesta</text>
+<text x="1040" y="218" class="method">+ enviar()</text>
+<text x="1040" y="241" class="method">+ enviarResultado()</text>
+<text x="1040" y="264" class="method">+ enviarErrorInterno()</text>
+<rect x="1025" y="395" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M1025 437h450" stroke="#739287"/>
+<text x="1040" y="423" class="head">Sesion</text>
+<text x="1040" y="463" class="method">+ iniciar()</text>
+<text x="1040" y="486" class="method">+ usuario()</text>
+<text x="1040" y="509" class="method">+ exigir()</text>
+<text x="1040" y="532" class="method">+ rechazar()</text>
+<text x="1040" y="555" class="method">+ datos()</text>
+<text x="1040" y="578" class="method">+ proteger()</text>
+<rect x="1025" y="640" width="450" height="225" rx="8" fill="white" stroke="#739287"/>
+<path d="M1025 682h450" stroke="#739287"/>
+<text x="1040" y="668" class="head">Validacion</text>
+<text x="1040" y="708" class="method">+ password()</text>
+<text x="1040" y="731" class="method">+ entrada()</text>
+<text x="45" y="2160" font-size="19">Controladores → Modelos → PDO   |   Endpoints → Sesion / Validacion / Respuesta</text>
+<text x="45" y="2194" font-size="17">Las relaciones detalladas están en diagrama-clases.mmd. No representa herencia entre roles del MER.</text>
+</svg>
