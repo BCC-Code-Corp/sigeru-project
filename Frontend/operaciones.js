@@ -83,19 +83,23 @@ export function instalarOperaciones({apiFetch, espacio, sesion, vincularMenu, es
             if(!listado) return;
             if(r.status!=='success'){listado.textContent=r.message;return;}
             listado.innerHTML=tabla(r.data || []);
-            if(admiteEdicion && !soloLectura) (r.data || []).forEach(row=>{
-                const b=document.createElement('button'); b.className='btn-mini'; b.textContent=`Editar #${row.id}`;
+            if(admiteEdicion && !soloLectura && r.data?.length) {
+                const th=document.createElement('th');th.textContent='Acciones';listado.querySelector('thead tr').append(th);
+            }
+            if(admiteEdicion && !soloLectura) (r.data || []).forEach((row,indice)=>{
+                const celda=document.createElement('td'); const acciones=document.createElement('div');acciones.className='acciones-fila';celda.append(acciones);listado.querySelectorAll('tbody tr')[indice].append(celda);
+                const b=document.createElement('button'); b.className='btn-mini boton-secundario'; b.textContent='Editar';b.setAttribute('aria-label',`Editar ${titulo} #${row.id}`);
                 b.onclick=()=>{editar=row.id; modo.textContent=`Editando registro #${row.id}`; campos.forEach(c=>{const el=document.getElementById('op-'+c); if(el) el.value=row[c] ?? '';});};
-                listado.append(b);
+                acciones.append(b);
                 if (sesion.rol==='administrador' && ['maquinaria','rutas'].includes(recurso)) {
-                    const baja=document.createElement('button'); baja.className='btn-mini'; baja.textContent=`Dar de baja #${row.id}`;
+                    const baja=document.createElement('button'); baja.className='btn-mini boton-peligro'; baja.textContent='Dar de baja';baja.setAttribute('aria-label',`Dar de baja ${titulo} #${row.id}`);
                     baja.onclick=async()=>{
                         const motivo=prompt('Motivo de la baja:'); if(!motivo || !motivo.trim()) return;
                         const resultado=await apiFetch(`${endpoints[recurso]}?id=${row.id}&motivo=${encodeURIComponent(motivo)}`,{method:'DELETE'});
                         document.getElementById('resultado-operacion').textContent=resultado.message;
                         if(resultado.status==='success') await cargarListado();
                     };
-                    listado.append(baja);
+                    acciones.append(baja);
                 }
             });
         };
@@ -109,7 +113,7 @@ export function instalarOperaciones({apiFetch, espacio, sesion, vincularMenu, es
         const contenedor = document.getElementById(seccion);
         if (!contenedor) return;
         const a=document.createElement('a'); a.href='#'; a.className='item-menu'; a.textContent=texto;
-        a.onclick=ev=>{ev.preventDefault(); Promise.resolve(fn()).catch(error=>{espacio.textContent=error.message;});};
+        a.onclick=ev=>{ev.preventDefault(); document.querySelectorAll('.item-menu').forEach(item=>item.classList.remove('activo')); a.classList.add('activo'); Promise.resolve(fn()).catch(error=>{espacio.textContent=error.message;});};
         contenedor.append(a);
     }
     menu('grupo-equipos-admin','Cuadrillas',()=>mostrar('cuadrillas'));
@@ -117,7 +121,6 @@ export function instalarOperaciones({apiFetch, espacio, sesion, vincularMenu, es
     menu('grupo-equipos-admin','Choferes y camiones',()=>relacion('chofer',['chofer_id','matricula','modelo','lic_conducir'],'Asignar chofer'));
     menu('grupo-rutas-admin','Calendario de rutas',()=>mostrar('asignaciones'));
     menu('grupo-contenedores-admin','Contenedores de rutas',()=>relacion('contenedor',['ruta_id','contenedor_id'],'Agregar contenedor a ruta'));
-    menu('grupo-usuarios-admin','Operarios e instalaciones',()=>relacion('operario',['usuario_id','centro_id','especialidad'],'Asignar instalación'));
     menu('grupo-centros-admin','Residuos habilitados',()=>relacion('residuo',['centro_id','residuo_id'],'Habilitar residuo en instalación'));
     menu('grupo-equipos-admin','Mantenimientos',()=>mostrar('mantenimientos'));
     menu('grupo-equipos-admin','Reparaciones',()=>mostrar('reparaciones'));

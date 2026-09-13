@@ -1,5 +1,7 @@
 # SiGeRU — Requisitos funcionales y no funcionales revisados
 
+Actualización de entrega del 13/09/2026: tres carpetas API; notificaciones en Usuarios. Se entrega un solo SQL para instalación vacía. Migración y herramientas históricas archivadas fuera del proyecto. Pruebas vigentes: 79 comprobaciones HTTP en PHP y 15 en JavaScript del navegador; no se atribuye a esta suite toda la cobertura operativa histórica. Backoffice disponible en Frontend/backoffice.html. Docker usa Apache y continúa pendiente de ejecución. Las menciones a migraciones anteriores describen evidencia histórica, no archivos que deban ejecutar en la entrega.
+
 Versión de trabajo: 12/09/2026. Fuentes: `Ingenieria.pdf` (ERS, pp. 6–10), `Proyecto_ESI_2026.pdf`, rúbricas de ambas entregas, README del equipo y MER compartido en Drive. Esta revisión conserva los identificadores originales. Las aclaraciones propuestas no constituyen una aprobación del docente ni reemplazan la letra oficial. El estado del código se registra por separado en `trazabilidad.md` y `segunda-entrega.md`.
 
 ## Alcance y actores
@@ -90,7 +92,7 @@ Cada fila expresa el comportamiento requerido y su aceptación. Los rangos agrup
 | RNF-18 | Conservar fecha de creación/modificación e historial relevante, manteniendo autor y referencia después de una baja. | Parcial: no todas las entidades exponen ambas fechas. |
 | RNF-19 | Mantener el requisito legal de protección de datos de la ERS. Documentar finalidad, acceso, retención y ejercicio de derechos con revisión competente. | No se certifica cumplimiento legal mediante pruebas de software. |
 | RNF-20 | Identificar registros reales y simulados y distinguirlos en reportes. | Recepciones y recolecciones implementadas; no implica certificación legal. |
-| RNF-21 | Pruebas de API y flujos funcionales con datos descartables, incluyendo errores, roles, historial y transacciones. | 155 comprobaciones HTTP y 15 validaciones frontend en la última ejecución completa. |
+| RNF-21 | Pruebas de API y flujos funcionales con datos descartables, incluyendo errores, roles, historial y transacciones. | 79 comprobaciones HTTP y 15 validaciones frontend en la última ejecución completa. |
 | RNF-22 | Versionar código y documentación con Git y publicar el historial en GitHub. | Cambios locales; publicación de esta revisión pendiente. |
 
 ## Correcciones y límites de esta revisión

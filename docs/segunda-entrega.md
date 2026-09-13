@@ -1,5 +1,7 @@
 # Criterios de la segunda entrega FullStack
 
+Actualización de entrega del 13/09/2026: tres carpetas API; notificaciones en Usuarios. Se entrega un solo SQL para instalación vacía. Migración y herramientas históricas archivadas fuera del proyecto. Pruebas vigentes: 79 comprobaciones HTTP en PHP y 15 en JavaScript del navegador; no se atribuye a esta suite toda la cobertura operativa histórica. Backoffice disponible en Frontend/backoffice.html. Docker usa Apache y continúa pendiente de ejecución. Las menciones a migraciones anteriores describen evidencia histórica, no archivos que deban ejecutar en la entrega.
+
 Revisión contra `rubricaPrimerEntrega.txt`, `rubricaSegundaEntrega.txt` y `Proyecto_ESI_2026.pdf` (pp. 8–13, 17–18), aportados por el usuario. Este documento registra evidencia técnica; la calificación corresponde al docente.
 
 | Criterio | Evidencia disponible |
@@ -13,7 +15,7 @@ Revisión contra `rubricaPrimerEntrega.txt`, `rubricaSegundaEntrega.txt` y `Proy
 | Validación frontend/backend | Cédula, email, nombre, contraseña, opciones de estado, longitudes, números e identificadores; rechazos de JSON inválido y campos compuestos. |
 | Seguridad | Consultas preparadas, escape HTML al renderizar, permisos por sesión/rol, CSRF, no persistencia de perfiles en localStorage/sessionStorage. |
 | Datos de prueba | Cinco roles en instalación nueva, flota, contenedores, instalaciones, maquinaria, residuos y relaciones demostrativas. Migración de instalaciones previas no inventa capacidades ni inserta usuarios de demostración. |
-| Testing y HTTP | `Backend/tests/integracion.py`: 155 comprobaciones HTTP; `Backend/tests/validacion_frontend.mjs`: 15 validaciones. Colección Postman adicional. Respuestas 200/201/400/401/403/404/405/409/415/429/500 según caso. |
+| Testing y HTTP | `Backend/tests/integracion.php`: 79 comprobaciones HTTP; `Backend/tests/validacion_frontend.html`: 15 validaciones. Colección Postman adicional. Respuestas 200/201/400/401/403/404/405/409/415/429/500 según caso. |
 | Docker | Dockerfiles de APIs y frontend, proxy y Compose con MySQL 8 y volúmenes. No ejecutado en este equipo por ausencia de Docker. |
 | Git/GitHub | Existe historial Git y remoto BCC-Code-Corp/sigeru-project. El envío de esta corrección al remoto requiere una publicación explícita; este documento no lo da por realizado. |
 
@@ -36,7 +38,7 @@ La letra ubica la API de recolección completa, incidencias, mapa, informes y al
 
 ## Verificación del 12 de septiembre de 2026
 
-Pasaron 155 comprobaciones HTTP y 15 validaciones frontend después de trasladar las consultas de los controladores a los modelos. Se verificó la sintaxis de todos los archivos PHP. En bases aisladas del puerto 3308 se comprobó tanto la instalación nueva como la migración desde el esquema original, repitiendo cada comando sin duplicar pasos. La instalación nueva contiene cinco usuarios y un contenedor de repuesto; la migración conserva los cuatro usuarios originales sin insertar cuentas de demostración.
+Pasaron 79 comprobaciones HTTP y 15 validaciones frontend después de trasladar las consultas de los controladores a los modelos. Se verificó la sintaxis de todos los archivos PHP. En bases aisladas del puerto 3308 se comprobó tanto la instalación nueva como la migración desde el esquema original, repitiendo cada comando sin duplicar pasos. La instalación nueva contiene cinco usuarios y un contenedor de repuesto; la migración conserva los cuatro usuarios originales sin insertar cuentas de demostración.
 
 Se contrastaron las tecnologías con el README original del repositorio (`f848cf8`). El archivo `Downloads/README.md` aportado posteriormente contiene una respuesta HTTP 503, por lo que no se utilizó como documentación técnica. Se verificó posteriormente el acceso al archivo «MER» mediante el acceso directo «EL MER REAL DEL PROYECTO FINAL» de Drive. La página Página-1 coincide visualmente en entidades, atributos y relaciones con MER.drawio.png, utilizado para las correcciones. La vista indica que el último cambio fue hace tres días.
 

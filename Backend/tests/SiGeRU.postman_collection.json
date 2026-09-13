@@ -229,7 +229,7 @@
             "value": "{{csrf}}"
           }
         ],
-        "url": "{{base_url}}/notificaciones/notificaciones.php"
+        "url": "{{base_url}}/usuarios/notificaciones.php"
       },
       "event": [
         {

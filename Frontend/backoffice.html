@@ -357,6 +357,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
+    <link rel="stylesheet" href="panel.css?v=4">
 </head>
 
 <body class="cuerpo-panel">
@@ -365,7 +366,7 @@
         <div style="padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2);">
             <div style="position: relative; display: inline-block;">
                 <img id="avatar-img" src="https://picsum.photos/80" alt="Avatar" style="width: 75px; height: 75px; border-radius: 50%; border: 3px solid #ffffff; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
-                <label for="input-foto" style="position: absolute; bottom: 0; right: 0; background: #ffffff; color: var(--color4); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" title="Cambiar foto">✏️</label>
+                <label for="input-foto" style="position: absolute; bottom: 0; right: 0; background: #ffffff; color: var(--color4); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);" title="Cambiar foto">＋</label>
                 <input type="file" id="input-foto" accept="image/*" style="display: none;">
             </div>
 
@@ -380,7 +381,7 @@
             <div id="seccion-admin" style="display: none;">
                 <span class="titulo-grupo-menu">Administrador</span>
                 <details class="menu-grupo-admin">
-                    <summary>Usuarios y Roles</summary>
+                    <summary>Usuarios</summary>
                     <div class="menu-subgrupo" id="grupo-usuarios-admin">
                         <a href="#" id="menu-gestionar-usuarios" class="item-menu">Gestionar usuarios</a>
                     </div>
@@ -415,7 +416,7 @@
         </nav>
 
         <div style="padding: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
-            <a href="backoffice.html" id="cerrar-sesion" style="color: #fca5a5; text-decoration: none; font-weight: 700; font-size: 0.9rem;">🚪 Cerrar Sesión</a>
+            <button type="button" id="cerrar-sesion" class="boton-cerrar-sesion">Cerrar sesión</button>
         </div>
     </aside>
         <main class="contenido-panel">
@@ -447,6 +448,7 @@
 
         <script type="module">
         import {idioma} from './config.js';
+        import {confirmarOperacion} from './confirmaciones.js?v=4';
         import {validarPassword,validarCedula,mensajePassword} from './validacion.js';
         document.documentElement.lang=idioma;
         // ==================================================
@@ -475,8 +477,9 @@
         }
 
         // Wrapper simple para fetch + JSON, evita repetir .then(r => r.json())
-        function apiFetch(url, opciones) {
+        async function apiFetch(url, opciones) {
             opciones = opciones || {};
+            if (!(await confirmarOperacion(url, opciones))) return {status: 'cancelled', message: 'Operación cancelada. No se guardaron cambios.'};
             opciones.credentials = 'same-origin';
             opciones.headers = {...opciones.headers, 'X-CSRF-Token':csrf};
             if (opciones.method && opciones.method !== 'GET') { opciones.headers['Content-Type']='application/json'; if (!opciones.body && opciones.method !== 'DELETE') opciones.body='{}'; }
@@ -865,7 +868,7 @@
                     setTimeout(cargarFeed, 400);
                     return;
                 }
-                apiFetch('../Backend/api/notificaciones/notificaciones.php?usuario_id=' + encodeURIComponent(sesion.id)).then(function(resp) {
+                apiFetch('../Backend/api/usuarios/notificaciones.php?usuario_id=' + encodeURIComponent(sesion.id)).then(function(resp) {
                     const notifs = resp.data || [];
 
                     if (notifs.length === 0) {
@@ -892,7 +895,7 @@
                     const mensaje = document.getElementById('anuncio-mensaje').value.trim();
                     if (!mensaje) { alert('Escribí un mensaje para el anuncio.'); return; }
 
-                    apiFetch('../Backend/api/notificaciones/notificaciones.php', {
+                    apiFetch('../Backend/api/usuarios/notificaciones.php', {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ mensaje: mensaje })
                     }).then(function(data) {
@@ -1942,8 +1945,8 @@
                             });
                             const idFila = escaparHtml(fila[cfg.idParam]);
                             html += `<td>
-                                <button class="btn-mini crud-editar" data-id="${idFila}" style="padding:6px 10px; font-size:0.8rem;">✏️ Editar</button>
-                                <button class="btn-mini crud-eliminar" data-id="${idFila}" style="padding:6px 10px; font-size:0.8rem; background:#dc2626; margin-left:5px;">🗑️ Eliminar</button>
+                                <button class="btn-mini crud-editar boton-secundario" data-id="${idFila}">Editar</button>
+                                <button class="btn-mini crud-eliminar boton-peligro" data-id="${idFila}">Dar de baja</button>
                             </td></tr>`;
                         });
 
@@ -2503,7 +2506,7 @@
         }
 
         //  CARGA INICIAL: Dashboard por defecto
-        const {instalarOperaciones} = await import('./operaciones.js?v=2');
+        const {instalarOperaciones} = await import('./operaciones.js?v=4');
         instalarOperaciones({apiFetch,espacio,sesion,vincularMenu,escaparHtml});
         renderDashboard();
     </script>

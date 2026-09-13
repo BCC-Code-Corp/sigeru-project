@@ -1,5 +1,7 @@
 # Revisión de requerimientos y DER
 
+Actualización de entrega del 13/09/2026: tres carpetas API; notificaciones en Usuarios. Se entrega un solo SQL para instalación vacía. Migración y herramientas históricas archivadas fuera del proyecto. Pruebas vigentes: 79 comprobaciones HTTP en PHP y 15 en JavaScript del navegador; no se atribuye a esta suite toda la cobertura operativa histórica. Backoffice disponible en Frontend/backoffice.html. Docker usa Apache y continúa pendiente de ejecución. Las menciones a migraciones anteriores describen evidencia histórica, no archivos que deban ejecutar en la entrega.
+
 Fuentes: Ingeniería, pp. 5–10 y 13; TablasYMER, pp. 4–10; MER.drawio.png; Ciberseguridad, pp. 5–9. UTULAB aporta contexto de los actores; los documentos de Emprendedurismo, Reglamento y Sistemas Operativos contienen principalmente obligaciones organizativas e infraestructura y no sustituyen la ERS.
 
 El 12 de septiembre se abrió también el [MER compartido en Drive](https://app.diagrams.net/#G1ZcM1holZ0JGQOyNFJiBcAXMiRwOlqcu_), página Página-1, desde el acceso directo «EL MER REAL DEL PROYECTO FINAL». La comparación visual con la imagen local confirma las mismas entidades, atributos y relaciones; no se identificó una nueva versión del modelo que requiera reemplazar el esquema por este motivo. El acceso quedó verificado sin modificar el diagrama compartido.

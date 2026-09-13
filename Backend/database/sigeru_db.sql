@@ -1,4 +1,5 @@
--- Solo para una base VACÍA. Para actualizar usar migracion_der.sql.
+-- Modelo físico y datos de demostración. Importar una vez en una base VACÍA.
+-- No importar sobre una instalación con datos existentes.
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 

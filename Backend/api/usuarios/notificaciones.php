@@ -3,7 +3,7 @@
  * ==================================================
  *  API USUARIOS · Notificaciones
  * ==================================================
- * Endpoint : /Backend/api/notificaciones/notificaciones.php
+ * Endpoint : /Backend/api/usuarios/notificaciones.php
  * GET    ?usuario_id=X   -> notificaciones privadas + anuncios de ese usuario (200 / 400)
  * GET    ?anuncios=1     -> historial completo de anuncios publicados (200)
  * POST   body: { mensaje }   -> el Administrador publica un anuncio público (201 / 400)
