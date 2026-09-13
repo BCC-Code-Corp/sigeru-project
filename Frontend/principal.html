@@ -9,7 +9,6 @@
 <body>
     <header class="encabezado" id="encabezado-principal">
         <div class="empresa">
-            <!-- Corregida la ruta para apuntar a assets -->
             <img src="../assets/LogoBCC.png" alt="Logo SiGeRU" class="logo-empresa">
         </div>
         <div class="acciones">
@@ -157,14 +156,11 @@
     </footer>
 
     <script>
-        // Header flotante: agrega sombra/blur una vez que se scrollea un poco.
         const encabezado = document.getElementById('encabezado-principal');
         window.addEventListener('scroll', function() {
             encabezado.classList.toggle('encabezado--flotante', window.scrollY > 30);
         });
 
-        // Animación de aparición al hacer scroll (IntersectionObserver):
-        // cada elemento .reveal se muestra la primera vez que entra en pantalla.
         const observador = new IntersectionObserver(function(entradas) {
             entradas.forEach(function(entrada) {
                 if (entrada.isIntersecting) {

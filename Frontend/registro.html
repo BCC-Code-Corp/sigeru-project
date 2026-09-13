@@ -48,7 +48,6 @@
 
     <script type="module">
         import {validarRegistro} from './validacion.js';
-        // Validación de Cédula Uruguaya en el Frontend
         function validarCedulaUruguaya(ci) {
             const clean = ci.replace(/[^0-9]/g, '').padStart(8, '0');
             if (clean.length !== 8) return false;

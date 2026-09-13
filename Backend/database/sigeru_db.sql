@@ -1,15 +1,8 @@
--- Modelo físico y datos de demostración. Importar una vez en una base VACÍA.
--- No importar sobre una instalación con datos existentes.
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
--- --------------------------------------------------------
--- Limpieza previa (orden inverso a las dependencias FK)
--- --------------------------------------------------------
 
--- --------------------------------------------------------
--- Tabla: usuarios
--- --------------------------------------------------------
 CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
@@ -22,9 +15,7 @@ CREATE TABLE `usuarios` (
   UNIQUE KEY `cedula` (`cedula`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
--- Tabla: camiones
--- --------------------------------------------------------
+
 CREATE TABLE `camiones` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `matricula` varchar(20) NOT NULL,
@@ -37,9 +28,7 @@ CREATE TABLE `camiones` (
   CONSTRAINT `fk_camion_cuadrilla` FOREIGN KEY (`cuadrilla_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
--- Tabla: contenedores
--- --------------------------------------------------------
+
 CREATE TABLE `contenedores` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ubicacion` varchar(255) NOT NULL,
@@ -47,9 +36,6 @@ CREATE TABLE `contenedores` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
--- Tabla: incidencias
--- --------------------------------------------------------
 CREATE TABLE `incidencias` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ubicacion` varchar(255) NOT NULL,
@@ -72,12 +58,7 @@ CREATE TABLE `incidencias` (
   CONSTRAINT `fk_incidencia_camion` FOREIGN KEY (`matricula_camion`) REFERENCES `camiones` (`matricula`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
--- Tabla: notificaciones
--- --------------------------------------------------------
--- usuario_id = NULL  ->  anuncio público (visible para todos los usuarios)
--- usuario_id = X     ->  notificación privada para el usuario X
---                        (por ejemplo, el cambio de estado de su incidencia)
+
 CREATE TABLE `notificaciones` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `usuario_id` int(11) DEFAULT NULL,
@@ -93,9 +74,7 @@ CREATE TABLE `notificaciones` (
   CONSTRAINT `fk_notificacion_incidencia` FOREIGN KEY (`incidencia_id`) REFERENCES `incidencias` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
--- Tabla: centros_acopio
--- --------------------------------------------------------
+
 CREATE TABLE `centros_acopio` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(150) NOT NULL,
@@ -105,22 +84,14 @@ CREATE TABLE `centros_acopio` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
--- Datos de ejemplo
--- --------------------------------------------------------
--- Contraseñas de prueba (en texto plano, documentadas también en el README):
---   admin@sigeru.uy      -> admin123
---   vecino@sigeru.uy     -> vecino123
---   operario@sigeru.uy   -> operario123
---   cuadrilla@sigeru.uy  -> cuadrilla123
+
 INSERT INTO `usuarios` (`nombre`, `email`, `cedula`, `password`, `rol`) VALUES
 ('Admin Prueba', 'admin@sigeru.uy', '10000008', '$2b$10$t3DloQv8mEmIeQb.Jzq5NOTQRHv33IGcipQZraC.6r3C34WlLvmgO', 'administrador'),
 ('Vecino Prueba', 'vecino@sigeru.uy', '10000014', '$2b$10$PWDGKWPX1Pp9wzlDwV5PAuKGubAQZBH180E1QBo74DiZJ0MZy97Sm', 'vecino'),
 ('Operario Prueba', 'operario@sigeru.uy', '10000020', '$2b$10$9eiyJONfrLI.v1FF/0Rx6.fipIrPAm/7x/J8n3/kzm5q24bGGi5wO', 'operario'),
 ('Cuadrilla Prueba', 'cuadrilla@sigeru.uy', '10000036', '$2b$10$s1sQ/IpEgrlVE5GbHVuu4OWk.hgS5svE9rGHxaYh8HEzvJYfyDvs6', 'cuadrilla');
 
--- El camión 'ABC 1234' ya tiene asignada a la Cuadrilla Prueba (id 4)
--- de forma persistente, a modo de ejemplo de la asignación cuadrilla-camión.
+
 INSERT INTO `camiones` (`matricula`, `capacidad_carga`, `estado`, `cuadrilla_id`) VALUES
 ('ABC 1234', 100.00, 'Disponible', 4),
 ('SBJ 3422', 73.00, 'Disponible', NULL),
@@ -147,8 +118,6 @@ INSERT INTO `notificaciones` (`usuario_id`, `tipo`, `mensaje`) VALUES
 (NULL, 'anuncio', 'Bienvenido a SiGeRU: ya podés reportar incidencias de contenedores y hacer seguimiento de su estado desde tu panel.');
 
 
--- Ejecutar UNA VEZ sobre el esquema anterior, después de realizar un respaldo.
--- No elimina registros. Los datos históricos desconocidos quedan NULL.
 CREATE TABLE cuadrillas (
  id int PRIMARY KEY AUTO_INCREMENT, nombre varchar(100) NOT NULL,
  disponibilidad boolean NOT NULL DEFAULT 1,
@@ -269,7 +238,7 @@ ALTER TABLE maquinaria ADD activo boolean NOT NULL DEFAULT 1, ADD motivo_baja va
 ALTER TABLE contenedores ADD activo boolean NOT NULL DEFAULT 1;
 UPDATE contenedores SET activo=en_servicio;
 
--- Datos adicionales de demostración SOLO para instalación nueva.
+
 INSERT INTO usuarios(nombre,email,cedula,password,rol) VALUES
 ('Chofer Prueba','chofer@sigeru.uy','20000006','$2y$10$qRYWe1Rg4NQa.y4gmqh/teMz9sQbR1LZLmgcfR4UTLoI3ThWp2wQS','chofer');
 INSERT INTO funcionarios(id,fecha_contratacion,direccion,email_laboral) SELECT id,'2026-01-01','Buceo, Montevideo',email FROM usuarios WHERE email='chofer@sigeru.uy';

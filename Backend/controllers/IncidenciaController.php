@@ -1,14 +1,4 @@
 <?php
-/**
- * ==================================================
- *  CONTROLADOR: INCIDENCIAS
- * ==================================================
- * Coordina el ciclo de vida de una incidencia (crear, listar,
- * asignar logística, resolver). "asignar" y "resolver" tocan
- * dos tablas a la vez (incidencias + camiones), por lo que usan
- * una transacción PDO para garantizar que ambas se actualicen
- * juntas o ninguna lo haga.
- */
 
 require_once __DIR__ . '/../models/Incidencia.php';
 require_once __DIR__ . '/../models/Camion.php';
@@ -75,7 +65,6 @@ class IncidenciaController
         return ["status" => "success", "message" => "Reporte ciudadano registrado con éxito.", "_code" => 201];
     }
 
-    /** Operario y Cuadrilla consultan el listado completo. */
     public function listar(): array
     {
         $u = $GLOBALS['actor'];
@@ -87,7 +76,6 @@ class IncidenciaController
         return ["status" => "success", "data" => $this->incidenciaModel->listarTodas()];
     }
 
-    /** Vecino consulta únicamente las incidencias que él mismo reportó. */
     public function listarPorUsuario(array $datos): array
     {
         if ($GLOBALS['actor']['rol'] !== 'administrador') $datos['usuario_id']=$GLOBALS['actor']['id'];
@@ -97,7 +85,6 @@ class IncidenciaController
         return ["status" => "success", "data" => $this->incidenciaModel->listarPorUsuario((int) $datos['usuario_id'])];
     }
 
-    /** Operario asigna cuadrilla + camión y pone la incidencia "en curso". */
     public function asignar(array $datos): array
     {
         if (empty($datos['id']) || empty($datos['matricula_camion'])) {
@@ -144,7 +131,6 @@ class IncidenciaController
         }
     }
 
-    /** Cuadrilla marca la incidencia como resuelta y libera el camión asignado. */
     public function resolver(array $datos): array
     {
         if (empty($datos['id'])) {

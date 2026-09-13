@@ -6,19 +6,20 @@
 <p>Ejecutadas en JavaScript del navegador. No escriben en la base de datos.</p>
 <pre id="resultado" role="status">Ejecutando…</pre>
 <script type="module">
-import {validarCedula,validarPassword,validarRegistro} from '../../Frontend/validacion.js';
-let total=0;
-function comprobar(condicion){if(!condicion)throw Error(`Falló la comprobación ${total+1}`);total++;}
-try {
-  for(const ci of ['', '00000000', '1', '2.000.000-7']) comprobar(!validarCedula(ci));
-  comprobar(validarCedula('2.000.000-6'));
-  for(const clave of ['corta','abcdefgh','ABCDEFGH','Abcdefgh','Abcdefg1','A1!'+'x'.repeat(80)]) comprobar(!validarPassword(clave));
-  comprobar(validarPassword('Prueba!234'));
-  const datos={nombre:'Nombre de prueba',email:'x@example.test',cedula:'20000006',password:'Prueba!234'};
-  comprobar(validarRegistro({...datos,nombre:'  '})!==null);
-  comprobar(validarRegistro({...datos,email:'incorrecto'})!==null);
-  comprobar(validarRegistro(datos)===null);
-  document.getElementById('resultado').textContent=`${total} comprobaciones correctas.`;
-} catch(error){document.getElementById('resultado').textContent=error.message;throw error;}
+  import { validarCedula, validarPassword, validarRegistro } from '../../Frontend/validacion.js';
+  let total = 0;
+  function comprobar(condicion) { if (!condicion) throw Error(`Falló la comprobación ${total + 1}`); total++; }
+  try {
+    for (const ci of ['', '00000000', '1', '2.000.000-7']) comprobar(!validarCedula(ci));
+    comprobar(validarCedula('2.000.000-6'));
+    for (const clave of ['corta', 'abcdefgh', 'ABCDEFGH', 'Abcdefgh', 'Abcdefg1', 'A1!' + 'x'.repeat(80)]) comprobar(!validarPassword(clave));
+    comprobar(validarPassword('Prueba!234'));
+    const datos = { nombre: 'Nombre de prueba', email: 'x@example.test', cedula: '20000006', password: 'Prueba!234' };
+    comprobar(validarRegistro({ ...datos, nombre: '  ' }) !== null);
+    comprobar(validarRegistro({ ...datos, email: 'incorrecto' }) !== null);
+    comprobar(validarRegistro(datos) === null);
+    document.getElementById('resultado').textContent = `${total} comprobaciones correctas.`;
+  } catch (error) { document.getElementById('resultado').textContent = error.message; throw error; }
 </script>
+
 </html>

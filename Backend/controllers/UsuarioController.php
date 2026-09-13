@@ -1,12 +1,5 @@
 <?php
-/**
- * ==================================================
- *  CONTROLADOR: USUARIO (CRUD completo, todos los roles)
- * ==================================================
- * Usado por el backoffice de Administración para dar de alta,
- * listar, editar y eliminar usuarios de cualquier rol. También
- * resuelve la consulta de perfil que hace el panel al iniciar sesión.
- */
+
 
 require_once __DIR__ . '/../models/Usuario.php';
 require_once __DIR__ . '/../core/Validacion.php';
@@ -21,13 +14,11 @@ class UsuarioController
         $this->usuarioModel = new Usuario($pdo);
     }
 
-    /** READ (todos) — listado completo para el backoffice de Administración. */
     public function listar(): array
     {
         return ["status" => "success", "data" => $this->usuarioModel->listarTodos()];
     }
 
-    /** READ (uno) — por id o por email, según lo que venga en el filtro. */
     public function obtener(array $filtro): array
     {
         if (!empty($filtro['id'])) {
@@ -45,7 +36,6 @@ class UsuarioController
         return ["status" => "error", "message" => "Usuario no encontrado.", "_code" => 404];
     }
 
-    /** CREATE — el Administrador da de alta un usuario con el rol que corresponda. */
     public function crear(array $datos): array
     {
         if (empty($datos['nombre']) || empty($datos['email']) || empty($datos['cedula']) || empty($datos['password'])) {
@@ -113,7 +103,6 @@ class UsuarioController
             return ["status" => "error", "message" => "El rol '$rol' no es válido.", "_code" => 400];
         }
 
-        // Si el email cambió, verificamos que no choque con el de otro usuario.
         if ($email !== $usuario['email']) {
             $existente = $this->usuarioModel->buscarPorEmail($email);
             if ($existente && (int) $existente['id'] !== $id) {
@@ -161,7 +150,6 @@ class UsuarioController
         if ($especialidad === '' || strlen($especialidad) > 100) throw new DomainException('La especialidad del operario es obligatoria.');
     }
 
-    /** DELETE — elimina un usuario por id. */
     public function eliminar(int $id): array
     {
         $usuario = $this->usuarioModel->buscarPorId($id);

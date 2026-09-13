@@ -1,5 +1,4 @@
 #!/bin/sh
-# Ejecutar desde la raíz. Puede programarse diariamente en el servidor Linux.
 set -eu
 umask 077
 mkdir -p output/backups

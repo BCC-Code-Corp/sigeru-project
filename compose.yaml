@@ -10,7 +10,7 @@ services:
       - datos:/var/lib/mysql
       - ./Backend/database/sigeru_db.sql:/docker-entrypoint-initdb.d/01-sigeru.sql:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1" ]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -18,34 +18,34 @@ services:
     build:
       context: .
       dockerfile: deploy/Dockerfile.api
-      args: {API_GROUP: usuarios}
+      args: { API_GROUP: usuarios }
     environment: &database
       SIGERU_DB_HOST: db
       SIGERU_DB_NAME: sigeru_db
       SIGERU_DB_USER: sigeru
       SIGERU_DB_PASSWORD: ${SIGERU_DB_PASSWORD}
-    volumes: ["sesiones:/var/lib/php/sessions"]
-    depends_on: {db: {condition: service_healthy}}
+    volumes: [ "sesiones:/var/lib/php/sessions" ]
+    depends_on: { db: { condition: service_healthy } }
   gestion:
     build:
       context: .
       dockerfile: deploy/Dockerfile.api
-      args: {API_GROUP: gestion}
+      args: { API_GROUP: gestion }
     environment: *database
-    volumes: ["sesiones:/var/lib/php/sessions"]
-    depends_on: {db: {condition: service_healthy}}
+    volumes: [ "sesiones:/var/lib/php/sessions" ]
+    depends_on: { db: { condition: service_healthy } }
   recoleccion:
     build:
       context: .
       dockerfile: deploy/Dockerfile.api
-      args: {API_GROUP: recoleccion}
+      args: { API_GROUP: recoleccion }
     environment: *database
-    volumes: ["sesiones:/var/lib/php/sessions"]
-    depends_on: {db: {condition: service_healthy}}
+    volumes: [ "sesiones:/var/lib/php/sessions" ]
+    depends_on: { db: { condition: service_healthy } }
   web:
-    build: {context: ., dockerfile: deploy/Dockerfile.web}
-    ports: ["127.0.0.1:8080:80"]
-    depends_on: [usuarios, gestion, recoleccion]
+    build: { context: ., dockerfile: deploy/Dockerfile.web }
+    ports: [ "127.0.0.1:8080:80" ]
+    depends_on: [ usuarios, gestion, recoleccion ]
 volumes:
   datos:
   sesiones:

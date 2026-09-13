@@ -1,10 +1,4 @@
 <?php
-/**
- * ==================================================
- *  MODELO: CONTENEDOR
- * ==================================================
- * Representa la tabla `contenedores` (puntos de recolección).
- */
 
 class Contenedor
 {
@@ -15,14 +9,12 @@ class Contenedor
         $this->pdo = $pdo;
     }
 
-    /** Devuelve todos los contenedores, los más nuevos primero. */
     public function listarTodos(): array
     {
         $stmt = $this->pdo->query("SELECT * FROM contenedores WHERE activo=1 ORDER BY id DESC");
         return $stmt->fetchAll();
     }
 
-    /** Busca un contenedor puntual por id. */
     public function buscarPorId(int $id)
     {
         $stmt = $this->pdo->prepare("SELECT * FROM contenedores WHERE id = ? AND activo=1");
@@ -30,21 +22,19 @@ class Contenedor
         return $stmt->fetch();
     }
 
-    /** Registra un contenedor nuevo. */
     public function crear(string $ubicacion, string $estado, string $tipoResiduo, bool $enServicio=true): bool
     {
         $stmt = $this->pdo->prepare("INSERT INTO contenedores (ubicacion, estado, tipo_residuo, en_servicio) VALUES (?, ?, ?, ?)");
         return $stmt->execute([$ubicacion, $estado, $tipoResiduo, (int)$enServicio]);
     }
 
-    /** Actualiza ubicación y estado de un contenedor existente. */
     public function actualizar(int $id, string $ubicacion, string $estado, string $tipoResiduo, bool $enServicio=true): bool
     {
         $stmt = $this->pdo->prepare("UPDATE contenedores SET ubicacion = ?, estado = ?, tipo_residuo = ?, en_servicio=? WHERE id = ? AND activo=1");
         return $stmt->execute([$ubicacion, $estado, $tipoResiduo, (int)$enServicio, $id]);
     }
 
-    /** Elimina un contenedor. */
+
     public function eliminar(int $id): bool
     {
         $stmt = $this->pdo->prepare("UPDATE contenedores SET activo=0, en_servicio=0, motivo_baja=? WHERE id = ? AND activo=1");
