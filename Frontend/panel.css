@@ -17,8 +17,44 @@
 .confirmacion dd { margin:3px 0 8px; }
 .confirmacion-acciones { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; }
 body.cuerpo-panel { background: #f5f7f3; }
-.cuerpo-panel .sidebar { box-shadow: 3px 0 18px rgba(25, 55, 35, .08); }
+.cuerpo-panel .sidebar {
+    position: sticky;
+    top: 0;
+    width: 260px;
+    min-width: 260px;
+    height: 100vh;
+    margin-left: 0;
+    box-shadow: 3px 0 18px rgba(25, 55, 35, .08);
+}
+.cuerpo-panel .sidebar.oculto { margin-left: -260px; }
+.cuerpo-panel .contenido-panel { flex: 1; min-width: 0; width: auto; }
 .cuerpo-panel .sidebar-menu { scrollbar-width: thin; scrollbar-color: #91aa93 transparent; }
+.cuerpo-panel .menu-general-panel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 25px;
+    background: #fff;
+    border-bottom: 1px solid #e2e8dd;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+}
+.cuerpo-panel .menu-general-panel::-webkit-scrollbar { display: none; }
+.cuerpo-panel .menu-general-panel .item-menu {
+    padding: 8px 12px;
+    color: var(--color4);
+    white-space: nowrap;
+    flex: 0 0 150px;
+    min-height: 36px;
+    text-align: center;
+}
+.cuerpo-panel .tabla-api {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+}
 .cuerpo-panel .item-menu,
 .cuerpo-panel .menu-grupo-admin summary {
     box-sizing: border-box;
@@ -76,7 +112,40 @@ body.cuerpo-panel { background: #f5f7f3; }
     outline-offset: 3px;
 }
 @media (max-width: 600px) {
-    .cuerpo-panel .menu-general-panel { padding: 8px 12px; gap: 4px; }
+    .cuerpo-panel {
+        overflow-x: hidden;
+    }
+    .cuerpo-panel .sidebar {
+        position: sticky;
+        top: 0;
+        width: min(240px, 86vw);
+        min-width: 0;
+        height: 100vh;
+        margin-left: 0;
+        box-shadow: 6px 0 20px rgba(25, 55, 35, .18);
+    }
+    .cuerpo-panel .sidebar.oculto {
+        margin-left: calc(-1 * min(240px, 86vw));
+    }
+    .cuerpo-panel .contenido-panel {
+        width: 100%;
+    }
+    .cuerpo-panel .menu-general-panel {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 8px 12px;
+        gap: 6px;
+        overflow: visible;
+    }
+    .cuerpo-panel .menu-general-panel .item-menu {
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        min-height: 44px;
+        padding: 10px 8px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
     .cuerpo-panel .barra-superior-panel { padding: 12px 16px; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -4,18 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - SiGeRU</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body class="cuerpo-formulario">
 
     <div class="contenedor-formulario">
         <div class="cabecera-formulario">
-            <div class="logo-reciclaje">♻️</div>
+            <div class="logo-reciclaje" aria-hidden="true">♻️</div>
             <h2>Iniciar Sesión</h2>
             <p>Accede al panel de control de SiGeRU</p>
-            <p>Usuarios de prueba:</p>
-            <p>Vecino: vecino@sigeru.uy | Contraseña: vecino123</p>
-            <p>Administrador: admin@sigeru.uy | Contraseña: admin123</p>
+            <div class="usuarios-prueba" role="note">
+                <strong>Usuarios de prueba</strong>
+                <span>Vecino: vecino@sigeru.uy | Contraseña: vecino123</span>
+                <span>Administrador: admin@sigeru.uy | Contraseña: admin123</span>
+            </div>
         </div>
 
         <p id="aviso-registro" role="status"></p>

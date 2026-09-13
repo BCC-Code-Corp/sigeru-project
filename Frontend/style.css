@@ -368,6 +368,74 @@ p {
     text-decoration: underline;
 }
 
+/* Ajustes visuales de landing y acceso */
+.principal-empresa {
+    width: min(100% - 4rem, 1200px);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.presentacion-texto h1 {
+    font-size: clamp(3rem, 5vw, 3.5rem);
+    font-weight: 800;
+}
+.presentacion-texto p { font-size: 1.05rem; color: #526057; }
+.boton-hero-primario, .boton-hero-secundario { padding: 14px 28px; }
+.boton-hero-primario { box-shadow: 0 8px 18px rgba(56,102,65,.22); }
+.img-presentacion { border-radius: 16px; box-shadow: 0 12px 28px rgba(25,55,35,.14); }
+.cuadricula-funcionalidades, .cuadricula-roles { gap: 20px; }
+.tarjeta, .tarjeta-rol {
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(25,55,35,.08);
+}
+.icono-tarjeta, .icono-rol { width: 48px; height: 48px; font-size: 1.8rem; }
+.timeline-item { padding: 20px 28px 20px 30px; }
+.timeline-marcador {
+    background: var(--color4);
+    width: 36px;
+    height: 36px;
+}
+.pie-pagina {
+    width: min(100% - 4rem, 1280px);
+    max-width: 1280px;
+    margin: 80px auto 0;
+    padding: 52px 40px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: space-between;
+    gap: 40px;
+}
+.pie-pagina > div { min-width: 0; }
+.pie-pagina p { color: #dce8b4; max-width: 240px; }
+.usuarios-prueba {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #f3f4f6;
+    border: 1px solid #d9dee5;
+    border-radius: 8px;
+    color: #526057;
+    font: 13px/1.45 monospace;
+    text-align: left;
+}
+.usuarios-prueba strong { color: var(--color4); font-family: inherit; }
+.cuerpo-formulario .contenedor-formulario { max-width: 480px; padding: 42px 36px; }
+.cuerpo-formulario .cabecera-formulario { margin-bottom: 24px; }
+.cuerpo-formulario .usuarios-prueba strong { margin-bottom: 2px; }
+.logo-reciclaje { font-size: 4.25rem; }
+.boton-formulario { box-shadow: 0 8px 18px rgba(56,102,65,.2); }
+.boton-formulario:hover { box-shadow: 0 10px 22px rgba(56,102,65,.3); }
+.cuerpo-panel #sidebar-rol { padding-top: 5px !important; padding-bottom: 5px !important; }
+
+@media (max-width: 700px) {
+    .principal-empresa { width: min(100% - 2rem, 1200px); }
+    .presentacion { flex-direction: column; align-items: stretch; }
+    .presentacion-texto h1 { font-size: 3rem; }
+    .pie-pagina { width: min(100% - 2rem, 1280px); grid-template-columns: 1fr; padding: 40px 24px; }
+}
+
 /* ========================================= */
 /* ESTILOS DEL PANEL DE CONTROL (REESTRUCTURADO) */
 /* ========================================= */
