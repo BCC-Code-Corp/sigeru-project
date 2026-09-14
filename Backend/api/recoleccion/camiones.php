@@ -1,5 +1,17 @@
 <?php
-// Camiones
+/**
+ * ==================================================
+ *  API RECOLECCIÓN · Camiones (CRUD de la flota)
+ * ==================================================
+ * Endpoint : /Backend/api/recoleccion/camiones.php
+ * GET    ?matricula=XXX   -> obtiene un camión (200 / 404) | sin parámetro -> lista todos (200)
+ * POST   body: { matricula, capacidad_carga? }               -> crea uno (201 / 400 / 409)
+ * PUT    ?matricula=XXX   body: { capacidad_carga?, estado }  -> actualiza (200 / 400 / 404)
+ * PUT    ?matricula=XXX&accion=asignar_cuadrilla    body: { cuadrilla_id } -> asigna/reasigna (200 / 400 / 404 / 409)
+ * PUT    ?matricula=XXX&accion=desasignar_cuadrilla                       -> desasigna       (200 / 400 / 404 / 409)
+ * DELETE ?matricula=XXX                                        -> elimina (200 / 404)
+ * Respuesta: { status, message?, data? }
+ */
 
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';

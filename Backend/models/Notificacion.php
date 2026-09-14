@@ -1,5 +1,14 @@
 <?php
-// Notificaciones
+/**
+ * ==================================================
+ *  MODELO: NOTIFICACION
+ * ==================================================
+ * Representa la tabla `notificaciones`.
+ *
+ *  - usuario_id = NULL  ->  anuncio público (lo ve cualquier usuario logueado)
+ *  - usuario_id = X     ->  notificación privada para el usuario X
+ *                           (ej: cambio de estado de su incidencia)
+ */
 
 class Notificacion
 {
@@ -10,6 +19,7 @@ class Notificacion
         $this->pdo = $pdo;
     }
 
+    /** Crea una notificación. Si $usuarioId es null, es un anuncio público. */
     public function crear($usuarioId, string $tipo, string $mensaje, $incidenciaId = null): bool
     {
         $stmt = $this->pdo->prepare(
@@ -19,6 +29,7 @@ class Notificacion
         return $stmt->execute([$usuarioId, $tipo, $mensaje, $incidenciaId]);
     }
 
+    /** Notificaciones privadas de un usuario + todos los anuncios públicos. */
     public function listarParaUsuario(int $usuarioId): array
     {
         $stmt = $this->pdo->prepare(
@@ -30,6 +41,7 @@ class Notificacion
         return $stmt->fetchAll();
     }
 
+    /** Historial de anuncios enviados (para que el administrador vea lo que mandó). */
     public function listarAnuncios(): array
     {
         $stmt = $this->pdo->query(

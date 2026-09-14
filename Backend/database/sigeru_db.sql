@@ -282,3 +282,63 @@ INSERT INTO residuos(tipo_residuo) VALUES ('Orgánico'),('Reciclable');
 INSERT INTO gestionan(centro_id,residuo_id) SELECT c.id,r.id FROM centros_acopio c CROSS JOIN residuos r;
 
 INSERT INTO contenedores(ubicacion,estado,tipo_residuo,tipo_contenedor,en_servicio) VALUES ('Depósito municipal de prueba','funcional','Orgánico','Urbano',0);
+
+-- --------------------------------------------------------
+-- Datos de prueba adicionales: operativa de recolección
+-- (rutas, asignaciones, recolecciones, mantenimientos,
+--  reparaciones, reclamos y tablas de relación del DER)
+-- --------------------------------------------------------
+
+-- Una instalación como vertedero, para dejar de ejemplo la distinción
+-- tipo_centro=acopio / vertedero que introduce el modelo físico actual.
+UPDATE centros_acopio SET tipo_centro='vertedero' WHERE nombre='Planta de Clasificación Este';
+
+-- Rutas de recolección
+INSERT INTO rutas(nombre,zona,frecuencia,horario) VALUES
+('Ruta Centro','Ciudad Vieja - Centro','Diaria','06:00 a 10:00'),
+('Ruta Buceo','Buceo - Malvín','Lunes, miércoles y viernes','07:00 a 11:00');
+
+-- La cuadrilla de prueba (id 4, ex "Cuadrilla Prueba") sigue la Ruta Centro
+INSERT INTO sigue(cuadrilla_id,ruta_id) SELECT 4,id FROM rutas WHERE nombre='Ruta Centro';
+
+-- El camión de prueba realiza esa misma ruta
+INSERT INTO realiza(matricula,ruta_id) SELECT 'ABC 1234',id FROM rutas WHERE nombre='Ruta Centro';
+
+-- La Ruta Centro pasa por los dos primeros contenedores de ejemplo
+INSERT INTO contiene(ruta_id,contenedor_id)
+SELECT r.id,c.id FROM rutas r JOIN contenedores c ON c.id IN (1,2) WHERE r.nombre='Ruta Centro';
+
+-- Cada incidencia de ejemplo queda asociada al contenedor correspondiente
+INSERT INTO sobre(contenedor_id,incidencia_id) VALUES (1,1),(2,2),(3,3);
+
+-- Calendario: la cuadrilla 4 y el camión ABC 1234 tienen asignada
+-- la Ruta Centro para una fecha de ejemplo
+INSERT INTO asignaciones(ruta_id,cuadrilla_id,matricula,fecha)
+SELECT id,4,'ABC 1234','2026-09-10' FROM rutas WHERE nombre='Ruta Centro';
+
+-- Recolección registrada por el recolector de prueba (id 4) sobre esa ruta
+INSERT INTO recolecciones(contenedor_id,recolector_id,ruta_id,cuadrilla_id,fecha,volumen,simulado)
+SELECT 1,4,id,4,'2026-09-10 08:15:00',1.50,0 FROM rutas WHERE nombre='Ruta Centro';
+
+-- Mantenimiento preventivo del camión de prueba
+INSERT INTO mantenimientos(descripcion,tipo_man,fecha_man,prox_man) VALUES
+('Cambio de aceite y filtros','Preventivo','2026-08-01','2026-11-01');
+INSERT INTO recibe(matricula,mantenimiento_id)
+SELECT 'ABC 1234',id FROM mantenimientos WHERE descripcion='Cambio de aceite y filtros';
+
+-- Reparación asociada a la incidencia de contenedor roto (id 3)
+INSERT INTO reparaciones(tipo_reparacion,fecha_inicio,fecha_fin) VALUES
+('Reparación de tapa','2026-08-15','2026-08-16');
+INSERT INTO necesita(incidencia_id,reparacion_id)
+SELECT 3,id FROM reparaciones WHERE tipo_reparacion='Reparación de tapa';
+
+-- Reclamo de un vecino sobre una de sus incidencias abiertas
+INSERT INTO reclamos(usuario_id,incidencia_id,descripcion,ubicacion,prioridad,estado) VALUES
+(2,2,'El contenedor sigue desbordado tres días después del reporte.','Av Italia 1333','alta','abierto');
+
+-- Recepción de residuos registrada por el operario de prueba
+INSERT INTO recepciones(centro_id,residuo_id,operario_id,cantidad,simulado) VALUES
+(1,1,3,25.50,0);
+UPDATE centros_acopio SET capacidad_ocupada=25.50 WHERE nombre='Centro de Acopio Norte';
+INSERT INTO historial_capacidad(centro_id,usuario_id,capacidad,capacidad_ocupada,estado)
+SELECT id,3,100,25.50,'Operativo' FROM centros_acopio WHERE nombre='Centro de Acopio Norte';

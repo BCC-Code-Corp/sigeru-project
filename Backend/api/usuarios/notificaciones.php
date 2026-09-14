@@ -1,5 +1,18 @@
 <?php
-// Notificaciones
+/**
+ * ==================================================
+ *  API USUARIOS · Notificaciones
+ * ==================================================
+ * Endpoint : /Backend/api/usuarios/notificaciones.php
+ * GET    ?usuario_id=X   -> notificaciones privadas + anuncios de ese usuario (200 / 400)
+ * GET    ?anuncios=1     -> historial completo de anuncios publicados (200)
+ * POST   body: { mensaje }   -> el Administrador publica un anuncio público (201 / 400)
+ * PUT    ?id=X               -> marca una notificación como leída (200 / 400 / 404)
+ * Respuesta: { status, message?, data? }
+ *
+ * No se expone DELETE: las notificaciones no se eliminan, solo
+ * cambian de estado (leída/no leída), de ahí que ese cambio use PUT.
+ */
 
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';

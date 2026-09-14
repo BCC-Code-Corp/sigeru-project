@@ -552,6 +552,194 @@
       ]
     },
     {
+      "name": "Crear camión de prueba (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{base_url}}/recoleccion/camiones.php",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"matricula\": \"TST9001\", \"capacidad_carga\": 10, \"estado\": \"Disponible\"}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear camión duplicado (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{base_url}}/recoleccion/camiones.php",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"matricula\": \"TST9001\", \"capacidad_carga\": 10, \"estado\": \"Disponible\"}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Crear camión sin datos obligatorios (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{base_url}}/recoleccion/camiones.php",
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Actualizar camión inexistente (404)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{base_url}}/recoleccion/camiones.php?matricula=NOEXISTE99",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"capacidad_carga\": 5, \"estado\": \"Disponible\"}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Método no soportado en camiones (405)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{base_url}}/recoleccion/camiones.php",
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 405', () => pm.response.to.have.status(405));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eliminar camión de prueba (200)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-CSRF-Token",
+            "value": "{{csrf}}"
+          }
+        ],
+        "url": "{{base_url}}/recoleccion/camiones.php?matricula=TST9001&motivo=Limpieza%20de%20datos%20de%20Postman"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "Cerrar sesión",
       "request": {
         "method": "POST",

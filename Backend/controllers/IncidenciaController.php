@@ -1,5 +1,14 @@
 <?php
-// Incidencias
+/**
+ * ==================================================
+ *  CONTROLADOR: INCIDENCIAS
+ * ==================================================
+ * Coordina el ciclo de vida de una incidencia (crear, listar,
+ * asignar logística, resolver). "asignar" y "resolver" tocan
+ * dos tablas a la vez (incidencias + camiones), por lo que usan
+ * una transacción PDO para garantizar que ambas se actualicen
+ * juntas o ninguna lo haga.
+ */
 
 require_once __DIR__ . '/../models/Incidencia.php';
 require_once __DIR__ . '/../models/Camion.php';
@@ -21,6 +30,7 @@ class IncidenciaController
         $this->notificacionModel = new Notificacion($pdo);
     }
 
+    /** Vecino reporta una incidencia nueva. */
     public function crear(array $datos): array
     {
         $ubicacion        = $datos['ubicacion'] ?? null;
@@ -43,6 +53,8 @@ class IncidenciaController
         if (!in_array($estadoContenedor, ['roto','desborde'],true)) return ['status'=>'error','message'=>'Tipo de incidencia: roto o desborde.','_code'=>400];
         if (empty(trim($datos['descripcion'] ?? ''))) return ['status'=>'error','message'=>'La descripción es obligatoria.','_code'=>400];
         foreach (['latitud','longitud'] as $campo) if (isset($datos[$campo]) && $datos[$campo] !== '' && !is_numeric($datos[$campo])) return ['status'=>'error','message'=>'Coordenadas inválidas.','_code'=>400];
+        // Latitud/Longitud son opcionales: llegan del pin que el vecino
+        // confirma en el mapa al reportar. Se validan solo si vienen informadas.
         $latitud  = (isset($datos['latitud'])  && $datos['latitud']  !== '' && $datos['latitud']  !== null) ? (float) $datos['latitud']  : null;
         $longitud = (isset($datos['longitud']) && $datos['longitud'] !== '' && $datos['longitud'] !== null) ? (float) $datos['longitud'] : null;
 
@@ -63,6 +75,7 @@ class IncidenciaController
         return ["status" => "success", "message" => "Reporte ciudadano registrado con éxito.", "_code" => 201];
     }
 
+    /** Operario y Cuadrilla consultan el listado completo. */
     public function listar(): array
     {
         $u = $GLOBALS['actor'];
@@ -74,6 +87,7 @@ class IncidenciaController
         return ["status" => "success", "data" => $this->incidenciaModel->listarTodas()];
     }
 
+    /** Vecino consulta únicamente las incidencias que él mismo reportó. */
     public function listarPorUsuario(array $datos): array
     {
         if ($GLOBALS['actor']['rol'] !== 'administrador') $datos['usuario_id']=$GLOBALS['actor']['id'];
@@ -83,6 +97,7 @@ class IncidenciaController
         return ["status" => "success", "data" => $this->incidenciaModel->listarPorUsuario((int) $datos['usuario_id'])];
     }
 
+    /** Operario asigna cuadrilla + camión y pone la incidencia "en curso". */
     public function asignar(array $datos): array
     {
         if (empty($datos['id']) || empty($datos['matricula_camion'])) {
@@ -129,6 +144,7 @@ class IncidenciaController
         }
     }
 
+    /** Cuadrilla marca la incidencia como resuelta y libera el camión asignado. */
     public function resolver(array $datos): array
     {
         if (empty($datos['id'])) {

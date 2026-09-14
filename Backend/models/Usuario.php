@@ -1,5 +1,13 @@
 <?php
-// Usuarios
+/**
+ * ==================================================
+ *  MODELO: USUARIO
+ * ==================================================
+ * Representa la tabla `usuarios` y encapsula TODAS las consultas
+ * relacionadas a usuarios (login, registro, perfil y CRUD completo
+ * para el backoffice de Administración). Ningún Controlador escribe
+ * SQL directamente: siempre pasa por acá.
+ */
 
 class Usuario
 {
@@ -11,6 +19,7 @@ class Usuario
         $this->pdo = $pdo;
     }
 
+    /** Busca un usuario completo (incluye password hasheado) para login. */
     public function buscarPorEmail(string $email)
     {
         $stmt = $this->pdo->prepare("SELECT id, nombre, email, password, rol, auth_version, estado_registro FROM usuarios WHERE email = ? AND activo=1");
@@ -18,6 +27,7 @@ class Usuario
         return $stmt->fetch();
     }
 
+    /** Busca los datos de perfil (sin password) por email. */
     public function buscarPerfilPorEmail(string $email)
     {
         $stmt = $this->pdo->prepare("SELECT id, nombre, email, cedula, rol, estado_registro FROM usuarios WHERE email = ? AND activo=1");
@@ -25,6 +35,7 @@ class Usuario
         return $stmt->fetch();
     }
 
+    /** Busca los datos de perfil (sin password) por id. Usado por el CRUD de Administración. */
     public function buscarPorId(int $id)
     {
         $stmt = $this->pdo->prepare("SELECT id, nombre, email, cedula, rol, estado_registro FROM usuarios WHERE id = ? AND activo=1");
@@ -32,12 +43,14 @@ class Usuario
         return $stmt->fetch();
     }
 
+    /** Devuelve todos los usuarios, de cualquier rol, para el backoffice. */
     public function listarTodos(): array
     {
         $stmt = $this->pdo->query("SELECT u.id, u.nombre, u.email, u.cedula, u.rol, u.estado_registro, o.centro_id, o.especialidad FROM usuarios u LEFT JOIN operarios o ON o.id=u.id WHERE u.activo=1 ORDER BY u.nombre ASC");
         return $stmt->fetchAll();
     }
 
+    /** Verifica si el email o la cédula ya están registrados. */
     public function existeEmailOCedula(string $email, string $cedula): bool
     {
         $stmt = $this->pdo->prepare("SELECT id FROM usuarios WHERE email = ? OR cedula = ?");
@@ -45,6 +58,7 @@ class Usuario
         return (bool) $stmt->fetch();
     }
 
+    /** Inserta un nuevo usuario. La contraseña ya debe venir hasheada. */
     public function crear(string $nombre, string $email, string $cedula, string $passwordHash, string $rol = 'vecino'): bool
     {
         $stmt = $this->pdo->prepare(
@@ -56,6 +70,7 @@ class Usuario
         return true;
     }
 
+    /** Actualiza nombre, email y rol de un usuario existente (la cédula no se reasigna). */
     public function actualizar(int $id, string $nombre, string $email, string $rol): bool
     {
         $stmt = $this->pdo->prepare("UPDATE usuarios SET nombre = ?, email = ?, rol = ? WHERE id = ? AND activo=1");
@@ -77,12 +92,14 @@ class Usuario
         return (bool) $stmt->fetchColumn();
     }
 
+    /** Cambia la contraseña de un usuario (uso opcional desde el CRUD de Administración). */
     public function actualizarPassword(int $id, string $passwordHash): bool
     {
         $stmt = $this->pdo->prepare("UPDATE usuarios SET password = ?, auth_version=auth_version+1 WHERE id = ? AND activo=1");
         return $stmt->execute([$passwordHash, $id]);
     }
 
+    /** Elimina un usuario por id. */
     public function eliminar(int $id): bool
     {
         $stmt = $this->pdo->prepare("UPDATE usuarios SET activo=0 WHERE id = ? AND activo=1");
@@ -130,7 +147,11 @@ class Usuario
         $this->pdo->prepare("INSERT IGNORE INTO $tabla(id) VALUES (?)")->execute([$id]);
     }
 
-    public static function validarCedula(string $cedula): bool
+    /**
+     * Valida el dígito verificador de una Cédula de Identidad uruguaya
+     * usando el algoritmo Módulo 10.
+     */
+    public static function validarCedulaUruguaya(string $cedula): bool
     {
         $numeros = preg_replace('/[^0-9]/', '', $cedula);
         if (strlen($numeros) < 7 || strlen($numeros) > 8 || (int)$numeros === 0) return false;

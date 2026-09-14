@@ -1,5 +1,9 @@
 <?php
-// Camiones
+/**
+ * ==================================================
+ *  CONTROLADOR: CAMIONES (API Recolección)
+ * ==================================================
+ */
 
 require_once __DIR__ . '/../models/Camion.php';
 require_once __DIR__ . '/../models/Usuario.php';
@@ -110,6 +114,15 @@ class CamionController
         return ["status" => "success", "message" => "Camión eliminado correctamente."];
     }
 
+    /**
+     * Asigna (o reasigna) una cuadrilla a un camión de forma persistente.
+     * Reglas:
+     *  - El camión destino tiene que estar "Disponible".
+     *  - La cuadrilla debe existir como equipo disponible.
+     *  - Si esa cuadrilla ya estaba en OTRO camión, se la libera de ahí
+     *    primero — pero solo si ese otro camión no tiene ninguna
+     *    incidencia "en curso" en este momento.
+     */
     public function asignarCuadrilla(string $matricula, array $datos): array
     {
         $camion = $this->camionModel->buscarPorMatricula($matricula);
@@ -131,6 +144,8 @@ class CamionController
             return ["status" => "error", "message" => "La cuadrilla indicada no es válida.", "_code" => 400];
         }
 
+        // Si esa cuadrilla ya estaba en otro camión, hay que liberarla de
+        // ahí antes de asignarla acá (esto es lo que permite "reasignar").
         $camionActual = $this->camionModel->buscarPorCuadrilla($cuadrillaId);
         if ($camionActual && $camionActual['matricula'] !== $matricula) {
             if ($this->incidenciaModel->tieneIncidenciasEnCurso($camionActual['matricula'])) {
@@ -148,6 +163,10 @@ class CamionController
         return ["status" => "success", "message" => "Cuadrilla asignada al camión correctamente."];
     }
 
+    /**
+     * Quita la cuadrilla persistente de un camión. Solo se permite si ese
+     * camión no tiene ninguna incidencia "en curso" en este momento.
+     */
     public function desasignarCuadrilla(string $matricula): array
     {
         $camion = $this->camionModel->buscarPorMatricula($matricula);
