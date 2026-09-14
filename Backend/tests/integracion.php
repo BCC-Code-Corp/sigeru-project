@@ -1,5 +1,5 @@
 <?php
-/** Pruebas HTTP en PHP 8. Solo usar una instalación con datos de demostración. */
+// Integración
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 if (($argv[2] ?? '') !== '--base-de-prueba') {
     exit("Uso: php Backend/tests/integracion.php http://127.0.0.1:8092 --base-de-prueba\nCrea registros: no usar con datos reales.\n");

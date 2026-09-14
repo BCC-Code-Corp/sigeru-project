@@ -1,19 +1,5 @@
 <?php
-/**
- * ==================================================
- *  API USUARIOS · CRUD completo (todos los roles)
- * ==================================================
- * Endpoint : /Backend/api/usuarios/usuarios.php
- * GET    ?id=1 | ?email=x@x.com   -> obtiene uno (200 / 404) | sin parámetros -> lista todos (200)
- * POST   body: { nombre, cedula, email, password, rol }         -> crea uno (201 / 400 / 409)
- * PUT    ?id=1  body: { nombre?, email?, rol?, password? }      -> actualiza (200 / 400 / 404 / 409)
- * DELETE ?id=1                                                    -> elimina (200 / 404)
- * Respuesta: { status, message?, usuario?/data? }
- *
- * Usado por el backoffice de Administración para gestionar vecinos,
- * operarios, cuadrillas y otros administradores. El panel también lo
- * usa en modo lectura (GET ?email=) para completar el perfil tras el login.
- */
+// Usuarios
 
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';

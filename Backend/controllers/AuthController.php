@@ -1,12 +1,5 @@
 <?php
-/**
- * ==================================================
- *  CONTROLADOR: AUTENTICACIÓN (Login / Registro)
- * ==================================================
- * Recibe datos ya decodificados desde el archivo de API,
- * valida las reglas de negocio, habla con el Modelo Usuario
- * y devuelve un array listo para convertirse en JSON.
- */
+// Autenticación
 
 require_once __DIR__ . '/../models/Usuario.php';
 require_once __DIR__ . '/../core/Validacion.php';
@@ -20,7 +13,6 @@ class AuthController
         $this->usuarioModel = new Usuario($pdo);
     }
 
-    /** Valida credenciales y devuelve los datos públicos del usuario si son correctas. */
     public function login(array $datos): array
     {
         if (empty($datos['email']) || empty($datos['password'])) {
@@ -59,7 +51,6 @@ class AuthController
         return ["status" => "error", "message" => "Credenciales incorrectas o usuario no registrado.", "_code" => 401];
     }
 
-    /** Valida cédula uruguaya, unicidad de email/cédula, hashea password y registra. */
     public function registro(array $datos): array
     {
         if (empty($datos['nombre']) || empty($datos['email']) || empty($datos['cedula']) || empty($datos['password'])) {
@@ -79,7 +70,7 @@ class AuthController
             return ["status" => "error", "message" => Validacion::PASSWORD_MENSAJE, "_code" => 400];
         }
 
-        if (!Usuario::validarCedulaUruguaya($cedula)) {
+        if (!Usuario::validarCedula($cedula)) {
             return ["status" => "error", "message" => "La Cédula de Identidad ingresada no es válida o es falsa.", "_code" => 400];
         }
 
