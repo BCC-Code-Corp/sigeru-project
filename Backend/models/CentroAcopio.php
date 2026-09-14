@@ -1,4 +1,12 @@
 <?php
+/**
+ * ==================================================
+ *  MODELO: CENTRO DE ACOPIO
+ * ==================================================
+ * Representa la tabla `centros_acopio`: puntos donde se
+ * concentran residuos y la maquinaria básica asociada a
+ * cada centro (compactadoras, cintas, grúas, etc).
+ */
 
 class CentroAcopio
 {
@@ -9,12 +17,14 @@ class CentroAcopio
         $this->pdo = $pdo;
     }
 
+    /** Devuelve todos los centros de acopio. */
     public function listarTodos(): array
     {
         $stmt = $this->pdo->query("SELECT c.*, (SELECT GROUP_CONCAT(nombre SEPARATOR ', ') FROM maquinaria WHERE centro_id=c.id AND activo=1) maquinaria FROM centros_acopio c WHERE activo=1 ORDER BY nombre ASC");
         return $stmt->fetchAll();
     }
 
+    /** Busca un centro de acopio puntual por id. */
     public function buscarPorId(int $id)
     {
         $stmt = $this->pdo->prepare("SELECT * FROM centros_acopio WHERE id = ? AND activo=1");
@@ -22,6 +32,7 @@ class CentroAcopio
         return $stmt->fetch();
     }
 
+    /** Registra un centro de acopio nuevo. */
     public function crear(string $nombre, string $ubicacion, string $maquinaria, string $estado): bool
     {
         $stmt = $this->pdo->prepare(
@@ -30,6 +41,7 @@ class CentroAcopio
         return $stmt->execute([$nombre, $ubicacion, $maquinaria, $estado]);
     }
 
+    /** Actualiza un centro de acopio existente. */
     public function actualizar(int $id, string $nombre, string $ubicacion, string $maquinaria, string $estado): bool
     {
         $stmt = $this->pdo->prepare(

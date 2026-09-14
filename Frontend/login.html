@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - SiGeRU</title>
     <link rel="stylesheet" href="style.css?v=2">
 </head>
-
 <body class="cuerpo-formulario">
 
     <div class="contenedor-formulario">
@@ -26,14 +24,12 @@
         <form id="form-login">
             <div class="grupo-campo">
                 <label for="email">Correo electrónico</label>
-                <input type="email" id="email" name="email" placeholder="ejemplo@sigeru.com" class="campo-entrada"
-                    required>
+                <input type="email" id="email" name="email" placeholder="ejemplo@sigeru.com" class="campo-entrada" required>
             </div>
 
             <div class="grupo-campo">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" placeholder="••••••••" class="campo-entrada"
-                    required>
+                <input type="password" id="password" name="password" placeholder="••••••••" class="campo-entrada" required>
             </div>
 
             <button type="submit" id="btn-submit" class="boton-formulario">Entrar al Sistema</button>
@@ -46,22 +42,22 @@
     </div>
 
     <script>
-        if (new URLSearchParams(location.search).get('registro') === 'pendiente') document.getElementById('aviso-registro').textContent = 'Solicitud enviada. Un administrador debe aprobar tu cuenta antes de iniciar sesión.';
-        document.getElementById('form-login').addEventListener('submit', function (e) {
+        if (new URLSearchParams(location.search).get('registro')==='pendiente') document.getElementById('aviso-registro').textContent='Solicitud enviada. Un administrador debe aprobar tu cuenta antes de iniciar sesión.';
+        document.getElementById('form-login').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const btn = document.getElementById('btn-submit');
 
-            if (!email || email.length > 100 || !password || password.length > 72) { alert('Completá un email válido y la contraseña.'); return; }
+            if (!email || email.length>100 || !password || password.length>72) { alert('Completá un email válido y la contraseña.'); return; }
             const originalText = btn.innerHTML;
 
-
+            // Feedback animado en botón
             btn.innerHTML = '<span class="spinner"></span> Verificando...';
             btn.style.opacity = '0.8';
             btn.disabled = true;
 
-
+            // CORRECCIÓN: Apunta a la subcarpeta correcta del backend
             fetch('../Backend/api/usuarios/login.php', {
                 method: 'POST',
                 headers: {
@@ -69,31 +65,30 @@
                 },
                 body: JSON.stringify({ email, password })
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        btn.innerHTML = '<span class="spinner"></span> Iniciando...';
-                        const rol = String(data.usuario?.rol || '').trim().toLowerCase();
-                        const destino = ['administrador', 'admin'].includes(rol)
-                            ? 'backoffice.html'
-                            : 'panel.html';
-                        window.location.replace(destino);
-                    } else {
-                        alert(data.message);
-                        btn.innerHTML = originalText;
-                        btn.style.opacity = '1';
-                        btn.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('No se pudo establecer conexión con el servidor.');
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    btn.innerHTML = '<span class="spinner"></span> Iniciando...';
+                    const rol = String(data.usuario?.rol || '').trim().toLowerCase();
+                    const destino = ['administrador', 'admin'].includes(rol)
+                        ? 'backoffice.html'
+                        : 'panel.html';
+                    window.location.replace(destino);
+                } else {
+                    alert(data.message);
                     btn.innerHTML = originalText;
                     btn.style.opacity = '1';
                     btn.disabled = false;
-                });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('No se pudo establecer conexión con el servidor.');
+                btn.innerHTML = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            });
         });
     </script>
 </body>
-
 </html>

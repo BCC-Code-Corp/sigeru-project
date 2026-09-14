@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ *  CONTROLADOR: NOTIFICACIONES
+ * ==================================================
+ * - Los avisos de cambio de estado de una incidencia los genera
+ *   automáticamente IncidenciaController (asignar/resolver).
+ * - Este controlador expone lo que necesita el Frontend:
+ *   listar las notificaciones de un usuario, marcar como leída,
+ *   y que el Administrador publique anuncios para todo el público.
+ */
 
 require_once __DIR__ . '/../models/Notificacion.php';
 
@@ -11,6 +21,7 @@ class NotificacionController
         $this->notificacionModel = new Notificacion($pdo);
     }
 
+    /** Notificaciones privadas de un usuario + anuncios públicos. */
     public function listar(array $datos): array
     {
         $datos['usuario_id'] = $GLOBALS['actor']['id'];
@@ -20,11 +31,13 @@ class NotificacionController
         return ["status" => "success", "data" => $this->notificacionModel->listarParaUsuario((int) $datos['usuario_id'])];
     }
 
+    /** Historial de anuncios enviados (para el panel del Administrador). */
     public function listarAnuncios(): array
     {
         return ["status" => "success", "data" => $this->notificacionModel->listarAnuncios()];
     }
 
+    /** El Administrador publica un anuncio visible para todo el público. */
     public function crearAnuncio(array $datos): array
     {
         $mensaje = trim($datos['mensaje'] ?? '');

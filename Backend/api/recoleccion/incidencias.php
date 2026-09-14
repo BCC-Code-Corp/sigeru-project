@@ -1,4 +1,25 @@
 <?php
+/**
+ * ==================================================
+ *  API RECOLECCIÓN · Incidencias
+ * ==================================================
+ * Endpoint : /Backend/api/recoleccion/incidencias.php
+ * GET    ?usuario_id=X            -> incidencias reportadas por ese usuario (200 / 400)
+ * GET    (sin parámetros)         -> lista todas las incidencias (200)
+ * POST   body: { ubicacion, estado_contenedor, tipo_basura, usuario_id,
+ *                latitud?, longitud? }                      -> crea una (201 / 400)
+ * PUT    ?id=X&accion=asignar     body: { cuadrilla_id?, matricula_camion,
+ *                                          comentario_operario? }  -> asigna logística (200 / 400 / 404)
+ * PUT    ?id=X&accion=resolver                                -> marca resuelta (200 / 404)
+ * Respuesta: { status, message?, data? }
+ *
+ * No se expone DELETE: una incidencia no se elimina, avanza de estado
+ * a lo largo del flujo de recolección (reportada -> en curso ->
+ * resuelta); por eso esos cambios de estado usan PUT sobre el mismo
+ * recurso identificado por "id", con "accion" solo para distinguir
+ * cuál transición de estado se está aplicando.
+ */
+
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';
 require_once __DIR__ . '/../../controllers/IncidenciaController.php';

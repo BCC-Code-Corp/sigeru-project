@@ -9,6 +9,7 @@
 <body>
     <header class="encabezado" id="encabezado-principal">
         <div class="empresa">
+            <!-- Corregida la ruta para apuntar a assets -->
             <img src="../assets/LogoBCC.png" alt="Logo SiGeRU" class="logo-empresa">
         </div>
         <div class="acciones">
@@ -25,6 +26,7 @@
             <a href="#funcionalidades" class="etiqueta-a">Servicios</a>
             <a href="#como-funciona" class="etiqueta-a">Cómo funciona</a>
             <a href="#roles" class="etiqueta-a">Nosotros</a>
+            <a href="impacto-social.html" class="etiqueta-a">Impacto social</a>
         </nav>
     </header>
 
@@ -147,6 +149,7 @@
             <a href="#hero" class="etiqueta-a">Inicio</a>
             <a href="#funcionalidades" class="etiqueta-a">Servicios</a>
             <a href="#roles" class="etiqueta-a">Nosotros</a>
+            <a href="impacto-social.html" class="etiqueta-a">Impacto social</a>
         </div>
         <div class="footer-empresa">
             <h4>Empresa</h4>
@@ -155,12 +158,19 @@
         </div>
     </footer>
 
+    <!-- Agente socializador: ver Frontend/agente-socializador.js -->
+    <div id="agente-socializador"></div>
+    <script src="agente-socializador.js"></script>
+
     <script>
+        // Header flotante: agrega sombra/blur una vez que se scrollea un poco.
         const encabezado = document.getElementById('encabezado-principal');
         window.addEventListener('scroll', function() {
             encabezado.classList.toggle('encabezado--flotante', window.scrollY > 30);
         });
 
+        // Animación de aparición al hacer scroll (IntersectionObserver):
+        // cada elemento .reveal se muestra la primera vez que entra en pantalla.
         const observador = new IntersectionObserver(function(entradas) {
             entradas.forEach(function(entrada) {
                 if (entrada.isIntersecting) {

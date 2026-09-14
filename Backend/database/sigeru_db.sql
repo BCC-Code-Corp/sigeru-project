@@ -1,8 +1,15 @@
-
+-- Modelo físico y datos de demostración. Importar una vez en una base VACÍA.
+-- No importar sobre una instalación con datos existentes.
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
+-- --------------------------------------------------------
+-- Limpieza previa (orden inverso a las dependencias FK)
+-- --------------------------------------------------------
 
+-- --------------------------------------------------------
+-- Tabla: usuarios
+-- --------------------------------------------------------
 CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(100) NOT NULL,
@@ -15,7 +22,9 @@ CREATE TABLE `usuarios` (
   UNIQUE KEY `cedula` (`cedula`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
+-- --------------------------------------------------------
+-- Tabla: camiones
+-- --------------------------------------------------------
 CREATE TABLE `camiones` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `matricula` varchar(20) NOT NULL,
@@ -28,7 +37,9 @@ CREATE TABLE `camiones` (
   CONSTRAINT `fk_camion_cuadrilla` FOREIGN KEY (`cuadrilla_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
+-- --------------------------------------------------------
+-- Tabla: contenedores
+-- --------------------------------------------------------
 CREATE TABLE `contenedores` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ubicacion` varchar(255) NOT NULL,
@@ -36,6 +47,9 @@ CREATE TABLE `contenedores` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+-- Tabla: incidencias
+-- --------------------------------------------------------
 CREATE TABLE `incidencias` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ubicacion` varchar(255) NOT NULL,
@@ -58,7 +72,12 @@ CREATE TABLE `incidencias` (
   CONSTRAINT `fk_incidencia_camion` FOREIGN KEY (`matricula_camion`) REFERENCES `camiones` (`matricula`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
+-- --------------------------------------------------------
+-- Tabla: notificaciones
+-- --------------------------------------------------------
+-- usuario_id = NULL  ->  anuncio público (visible para todos los usuarios)
+-- usuario_id = X     ->  notificación privada para el usuario X
+--                        (por ejemplo, el cambio de estado de su incidencia)
 CREATE TABLE `notificaciones` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `usuario_id` int(11) DEFAULT NULL,
@@ -74,7 +93,9 @@ CREATE TABLE `notificaciones` (
   CONSTRAINT `fk_notificacion_incidencia` FOREIGN KEY (`incidencia_id`) REFERENCES `incidencias` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
+-- --------------------------------------------------------
+-- Tabla: centros_acopio
+-- --------------------------------------------------------
 CREATE TABLE `centros_acopio` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `nombre` varchar(150) NOT NULL,
@@ -84,14 +105,22 @@ CREATE TABLE `centros_acopio` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
+-- --------------------------------------------------------
+-- Datos de ejemplo
+-- --------------------------------------------------------
+-- Contraseñas de prueba (en texto plano, documentadas también en el README):
+--   admin@sigeru.uy      -> admin123
+--   vecino@sigeru.uy     -> vecino123
+--   operario@sigeru.uy   -> operario123
+--   cuadrilla@sigeru.uy  -> cuadrilla123
 INSERT INTO `usuarios` (`nombre`, `email`, `cedula`, `password`, `rol`) VALUES
 ('Admin Prueba', 'admin@sigeru.uy', '10000008', '$2b$10$t3DloQv8mEmIeQb.Jzq5NOTQRHv33IGcipQZraC.6r3C34WlLvmgO', 'administrador'),
 ('Vecino Prueba', 'vecino@sigeru.uy', '10000014', '$2b$10$PWDGKWPX1Pp9wzlDwV5PAuKGubAQZBH180E1QBo74DiZJ0MZy97Sm', 'vecino'),
 ('Operario Prueba', 'operario@sigeru.uy', '10000020', '$2b$10$9eiyJONfrLI.v1FF/0Rx6.fipIrPAm/7x/J8n3/kzm5q24bGGi5wO', 'operario'),
 ('Cuadrilla Prueba', 'cuadrilla@sigeru.uy', '10000036', '$2b$10$s1sQ/IpEgrlVE5GbHVuu4OWk.hgS5svE9rGHxaYh8HEzvJYfyDvs6', 'cuadrilla');
 
-
+-- El camión 'ABC 1234' ya tiene asignada a la Cuadrilla Prueba (id 4)
+-- de forma persistente, a modo de ejemplo de la asignación cuadrilla-camión.
 INSERT INTO `camiones` (`matricula`, `capacidad_carga`, `estado`, `cuadrilla_id`) VALUES
 ('ABC 1234', 100.00, 'Disponible', 4),
 ('SBJ 3422', 73.00, 'Disponible', NULL),
@@ -118,6 +147,8 @@ INSERT INTO `notificaciones` (`usuario_id`, `tipo`, `mensaje`) VALUES
 (NULL, 'anuncio', 'Bienvenido a SiGeRU: ya podés reportar incidencias de contenedores y hacer seguimiento de su estado desde tu panel.');
 
 
+-- Ejecutar UNA VEZ sobre el esquema anterior, después de realizar un respaldo.
+-- No elimina registros. Los datos históricos desconocidos quedan NULL.
 CREATE TABLE cuadrillas (
  id int PRIMARY KEY AUTO_INCREMENT, nombre varchar(100) NOT NULL,
  disponibilidad boolean NOT NULL DEFAULT 1,
@@ -238,7 +269,7 @@ ALTER TABLE maquinaria ADD activo boolean NOT NULL DEFAULT 1, ADD motivo_baja va
 ALTER TABLE contenedores ADD activo boolean NOT NULL DEFAULT 1;
 UPDATE contenedores SET activo=en_servicio;
 
-
+-- Datos adicionales de demostración SOLO para instalación nueva.
 INSERT INTO usuarios(nombre,email,cedula,password,rol) VALUES
 ('Chofer Prueba','chofer@sigeru.uy','20000006','$2y$10$qRYWe1Rg4NQa.y4gmqh/teMz9sQbR1LZLmgcfR4UTLoI3ThWp2wQS','chofer');
 INSERT INTO funcionarios(id,fecha_contratacion,direccion,email_laboral) SELECT id,'2026-01-01','Buceo, Montevideo',email FROM usuarios WHERE email='chofer@sigeru.uy';
@@ -251,3 +282,63 @@ INSERT INTO residuos(tipo_residuo) VALUES ('Orgánico'),('Reciclable');
 INSERT INTO gestionan(centro_id,residuo_id) SELECT c.id,r.id FROM centros_acopio c CROSS JOIN residuos r;
 
 INSERT INTO contenedores(ubicacion,estado,tipo_residuo,tipo_contenedor,en_servicio) VALUES ('Depósito municipal de prueba','funcional','Orgánico','Urbano',0);
+
+-- --------------------------------------------------------
+-- Datos de prueba adicionales: operativa de recolección
+-- (rutas, asignaciones, recolecciones, mantenimientos,
+--  reparaciones, reclamos y tablas de relación del DER)
+-- --------------------------------------------------------
+
+-- Una instalación como vertedero, para dejar de ejemplo la distinción
+-- tipo_centro=acopio / vertedero que introduce el modelo físico actual.
+UPDATE centros_acopio SET tipo_centro='vertedero' WHERE nombre='Planta de Clasificación Este';
+
+-- Rutas de recolección
+INSERT INTO rutas(nombre,zona,frecuencia,horario) VALUES
+('Ruta Centro','Ciudad Vieja - Centro','Diaria','06:00 a 10:00'),
+('Ruta Buceo','Buceo - Malvín','Lunes, miércoles y viernes','07:00 a 11:00');
+
+-- La cuadrilla de prueba (id 4, ex "Cuadrilla Prueba") sigue la Ruta Centro
+INSERT INTO sigue(cuadrilla_id,ruta_id) SELECT 4,id FROM rutas WHERE nombre='Ruta Centro';
+
+-- El camión de prueba realiza esa misma ruta
+INSERT INTO realiza(matricula,ruta_id) SELECT 'ABC 1234',id FROM rutas WHERE nombre='Ruta Centro';
+
+-- La Ruta Centro pasa por los dos primeros contenedores de ejemplo
+INSERT INTO contiene(ruta_id,contenedor_id)
+SELECT r.id,c.id FROM rutas r JOIN contenedores c ON c.id IN (1,2) WHERE r.nombre='Ruta Centro';
+
+-- Cada incidencia de ejemplo queda asociada al contenedor correspondiente
+INSERT INTO sobre(contenedor_id,incidencia_id) VALUES (1,1),(2,2),(3,3);
+
+-- Calendario: la cuadrilla 4 y el camión ABC 1234 tienen asignada
+-- la Ruta Centro para una fecha de ejemplo
+INSERT INTO asignaciones(ruta_id,cuadrilla_id,matricula,fecha)
+SELECT id,4,'ABC 1234','2026-09-10' FROM rutas WHERE nombre='Ruta Centro';
+
+-- Recolección registrada por el recolector de prueba (id 4) sobre esa ruta
+INSERT INTO recolecciones(contenedor_id,recolector_id,ruta_id,cuadrilla_id,fecha,volumen,simulado)
+SELECT 1,4,id,4,'2026-09-10 08:15:00',1.50,0 FROM rutas WHERE nombre='Ruta Centro';
+
+-- Mantenimiento preventivo del camión de prueba
+INSERT INTO mantenimientos(descripcion,tipo_man,fecha_man,prox_man) VALUES
+('Cambio de aceite y filtros','Preventivo','2026-08-01','2026-11-01');
+INSERT INTO recibe(matricula,mantenimiento_id)
+SELECT 'ABC 1234',id FROM mantenimientos WHERE descripcion='Cambio de aceite y filtros';
+
+-- Reparación asociada a la incidencia de contenedor roto (id 3)
+INSERT INTO reparaciones(tipo_reparacion,fecha_inicio,fecha_fin) VALUES
+('Reparación de tapa','2026-08-15','2026-08-16');
+INSERT INTO necesita(incidencia_id,reparacion_id)
+SELECT 3,id FROM reparaciones WHERE tipo_reparacion='Reparación de tapa';
+
+-- Reclamo de un vecino sobre una de sus incidencias abiertas
+INSERT INTO reclamos(usuario_id,incidencia_id,descripcion,ubicacion,prioridad,estado) VALUES
+(2,2,'El contenedor sigue desbordado tres días después del reporte.','Av Italia 1333','alta','abierto');
+
+-- Recepción de residuos registrada por el operario de prueba
+INSERT INTO recepciones(centro_id,residuo_id,operario_id,cantidad,simulado) VALUES
+(1,1,3,25.50,0);
+UPDATE centros_acopio SET capacidad_ocupada=25.50 WHERE nombre='Centro de Acopio Norte';
+INSERT INTO historial_capacidad(centro_id,usuario_id,capacidad,capacidad_ocupada,estado)
+SELECT id,3,100,25.50,'Operativo' FROM centros_acopio WHERE nombre='Centro de Acopio Norte';

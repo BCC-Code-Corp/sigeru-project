@@ -1,4 +1,16 @@
 <?php
+/**
+ * ==================================================
+ *  API GESTIÓN · Contenedores (CRUD)
+ * ==================================================
+ * Endpoint : /Backend/api/gestion/contenedores.php
+ * GET    ?id=1          -> obtiene uno (200 / 404) | sin parámetro -> lista todos (200)
+ * POST   body: { ubicacion, estado }              -> crea uno (201 / 400)
+ * PUT    ?id=1  body: { ubicacion, estado }        -> actualiza (200 / 400 / 404)
+ * DELETE ?id=1                                      -> elimina (200 / 404)
+ * Respuesta: { status, message?, data? }
+ */
+
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';
 require_once __DIR__ . '/../../controllers/ContenedorController.php';

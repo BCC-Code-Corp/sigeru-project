@@ -1,4 +1,5 @@
 <?php
+/** Persistencia de las relaciones operativas del DER. Identificadores SQL internos. */
 final class Operacion
 {
     public function __construct(private PDO $pdo) {}

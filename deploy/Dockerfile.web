@@ -1,5 +1,0 @@
-FROM php:8.3-apache
-RUN a2enmod proxy proxy_http
-COPY Frontend /var/www/html/Frontend
-COPY assets /var/www/html/assets
-COPY deploy/web.conf /etc/apache2/sites-available/000-default.conf

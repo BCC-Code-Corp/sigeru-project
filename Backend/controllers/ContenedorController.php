@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * ==================================================
+ *  CONTROLADOR: CONTENEDORES (API Gestión)
+ * ==================================================
+ */
 
 require_once __DIR__ . '/../models/Contenedor.php';
 
