@@ -486,7 +486,6 @@
         function guardarSesion() {
         }
 
-        // Wrapper simple para fetch + JSON, evita repetir .then(r => r.json())
         async function apiFetch(url, opciones) {
             opciones = opciones || {};
             if (!(await confirmarOperacion(url, opciones))) return {status: 'cancelled', message: 'Operación cancelada. No se guardaron cambios.'};
@@ -496,9 +495,6 @@
             return fetch(url, opciones).then(async function(r) { if(r.status===401) location.replace('login.html'); return r.json(); });
         }
 
-        // Escapa texto antes de insertarlo en el DOM vía innerHTML, para
-        // que un dato guardado en la base (ej: una ubicación con "<script>")
-        // nunca se interprete como HTML/JS -> mitiga XSS almacenado.
         function escaparHtml(valor) {
             const texto = (valor === null || valor === undefined) ? '' : String(valor);
             const div = document.createElement('div');
@@ -506,9 +502,6 @@
             return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
-        // Validación de Cédula Uruguaya en el Frontend (mismo algoritmo que
-        // usa registro.html y el Backend, reutilizado acá para el CRUD de
-        // Usuarios del backoffice).
         function validarCedulaUruguaya(ci) { return validarCedula(ci); }
 
         // ==================================================
@@ -558,8 +551,6 @@
                 document.getElementById('avatar-img').src = sesion.foto;
             }
 
-            // Normalizamos el rol y mostramos EXCLUSIVAMENTE la sección
-            // General + la sección correspondiente al rol del usuario.
             let rol = (sesion.rol || 'vecino').toLowerCase();
             if (rol === 'admin') rol = 'administrador';
             rolActual = ['chofer','recolector'].includes(rol) ? 'cuadrilla' : rol;
@@ -608,9 +599,6 @@
 
         // ---------- 1. INICIO / DASHBOARD ----------
         // ---------- Noticias ambientales (contenido simulado/ilustrativo) ----------
-        // No son noticias reales: son consejos y novedades genéricas de la
-        // plataforma, pensadas para darle vida visual al Dashboard general
-        // (que ven todos los roles) con tarjetas, íconos y animaciones.
         const noticiasAmbientales = [
             { imagen: '../assets/recliclaje.jpg', categoria: 'Reciclaje', titulo: 'Separar en origen mejora todo el circuito', resumen: 'Clasificar reciclables y orgánicos en casa reduce la contaminación cruzada y agiliza el trabajo de las cuadrillas.', fecha: 'Hace 2 días' },
             { imagen: '../assets/arbol.jpg', categoria: 'Espacios verdes', titulo: 'Más árboles urbanos, mejor calidad de aire', resumen: 'Las zonas con arbolado en la ciudad ayudan a bajar la temperatura y a filtrar el aire que respiramos.', fecha: 'Hace 4 días' },
@@ -952,11 +940,6 @@
             }
         }
 
-        // Geocodificación inversa: a partir de un punto (lat/lon) del mapa,
-        // devuelve el texto de la dirección más cercana (o null si no se
-        // pudo resolver). Se usa en la preview del reporte de incidencias
-        // para que, si el vecino corrige el pin a mano, la dirección que
-        // se guarda coincida con el punto que realmente eligió en el mapa.
         function geocodificarInverso(lat, lon) {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=0`;
             return fetch(url, { headers: { 'Accept-Language': 'es' } })
@@ -984,9 +967,6 @@
 
         function esperar(ms) { return new Promise(function(resolve) { setTimeout(resolve, ms); }); }
 
-        // Dibuja un marcador (círculo de color si el punto trae "color" —
-        // usado para incidencias según su estado — o pin celeste por
-        // defecto) en las coordenadas dadas.
         function colocarMarcador(mapa, p, lat, lon) {
             const marcador = p.color
                 ? L.circleMarker([lat, lon], {
@@ -997,13 +977,6 @@
             marcador.bindPopup(p.popup);
         }
 
-        // Ubica una lista de puntos { texto, popup, color?, lat?, lon? }.
-        // Los puntos que YA traen Latitud/Longitud guardada (incidencias,
-        // que siempre la guardan al confirmar el pin en el mapa) se dibujan
-        // de inmediato, todos juntos, sin esperar nada. Solo lo que no tiene
-        // coordenadas (contenedores, centros de acopio, e incidencias viejas
-        // cargadas antes de tener este paso) se geocodifica por texto contra
-        // Nominatim, de a un punto por segundo (límite del servicio gratuito).
         async function ubicarPuntos(mapa, puntos, contenedorSinUbicar) {
             const sinUbicar = [];
             const pendientes = [];
@@ -1049,15 +1022,6 @@
             return '#dc2626';
         }
 
-        // Qué puede ver cada rol en "Mapa" (el ítem general, visible para
-        // todos): el Administrador (o quien entra por "Mapa General") ve
-        // todo, igual que antes. El resto de los roles ve una versión
-        // recortada pensada para lo que a ese rol le sirve:
-        //   - vecino: solo las incidencias que ÉL reportó.
-        //   - cuadrilla: los centros de acopio + las incidencias que TIENE
-        //     asignadas a sí misma.
-        //   - operario: un resumen general del sistema (números, no
-        //     ubicaciones puntuales) + los centros de acopio en el mapa.
         function renderMapa(vistaAdminForzada) {
             const rol = rolActual;
             const modo = (vistaAdminForzada === true || rol === 'administrador') ? 'admin' : rol;
@@ -1115,8 +1079,6 @@
                 const camiones = res[3].data || [];
 
                 if (modo === 'cuadrilla') {
-                    // La cuadrilla solo ve las incidencias que tiene
-                    // asignadas a sí misma, no todas las del sistema.
                     incidencias = incidencias.filter(function(i) { return String(i.cuadrilla_id) === String(sesion.cuadrilla_id); });
                 }
 
@@ -1135,15 +1097,8 @@
                 }
 
                 if (modo !== 'operario') {
-                    // Al operario no se le muestran incidencias puntuales
-                    // en el mapa: su vista es de datos generales + centros
-                    // de acopio (ver el panel de arriba del mapa).
                     incidencias.forEach(function(i) {
                         const estado = (i.estado_incidencia || 'abierta');
-                        // La incidencia ya tiene latitud/longitud guardadas
-                        // desde que se confirmó el pin en el mapa al
-                        // reportarla -> se ubica al instante, sin
-                        // geocodificar por texto.
                         const lat = (i.latitud !== null && i.latitud !== undefined) ? parseFloat(i.latitud) : null;
                         const lon = (i.longitud !== null && i.longitud !== undefined) ? parseFloat(i.longitud) : null;
                         puntos.push({
@@ -1168,9 +1123,6 @@
                 }
 
                 if (modo === 'operario') {
-                    // Datos generales (números, no ubicaciones puntuales)
-                    // para que el operario tenga panorama del sistema sin
-                    // ver el detalle de cada incidencia.
                     const abiertas = incidencias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'abierta').length;
                     const enCursoCant = incidencias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'en curso').length;
                     const solucionadas = incidencias.filter(i => (i.estado_incidencia || '').toLowerCase() === 'cerrada').length;
@@ -1253,10 +1205,6 @@
                     return;
                 }
 
-                // En vez de mandar el reporte directo, primero se muestra
-                // una preview del mapa para que el vecino confirme (o
-                // corrija con un click) dónde va a quedar marcada la
-                // incidencia.
                 renderPreviewIncidencia({
                     ubicacion: ubi,
                     estado_contenedor: est,

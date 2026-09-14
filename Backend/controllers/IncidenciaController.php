@@ -53,8 +53,6 @@ class IncidenciaController
         if (!in_array($estadoContenedor, ['roto','desborde'],true)) return ['status'=>'error','message'=>'Tipo de incidencia: roto o desborde.','_code'=>400];
         if (empty(trim($datos['descripcion'] ?? ''))) return ['status'=>'error','message'=>'La descripción es obligatoria.','_code'=>400];
         foreach (['latitud','longitud'] as $campo) if (isset($datos[$campo]) && $datos[$campo] !== '' && !is_numeric($datos[$campo])) return ['status'=>'error','message'=>'Coordenadas inválidas.','_code'=>400];
-        // Latitud/Longitud son opcionales: llegan del pin que el vecino
-        // confirma en el mapa al reportar. Se validan solo si vienen informadas.
         $latitud  = (isset($datos['latitud'])  && $datos['latitud']  !== '' && $datos['latitud']  !== null) ? (float) $datos['latitud']  : null;
         $longitud = (isset($datos['longitud']) && $datos['longitud'] !== '' && $datos['longitud'] !== null) ? (float) $datos['longitud'] : null;
 

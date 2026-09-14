@@ -15,18 +15,10 @@ $host    = getenv('SIGERU_DB_HOST') ?: '127.0.0.1';
 $port = getenv('SIGERU_DB_PORT') ?: '3306';
 $db      = getenv('SIGERU_DB_NAME') ?: 'sigeru_db';
 $user    = getenv('SIGERU_DB_USER') ?: 'root';
-$pass    = getenv('SIGERU_DB_PASSWORD') ?: ''; // Por defecto en XAMPP suele estar vacío
+$pass    = getenv('SIGERU_DB_PASSWORD') ?: '';
 $charset = 'utf8mb4';
 
-// ==================================================
-//  MODO DEBUG
-// ==================================================
-// true  -> los errores del servidor (try/catch de cada endpoint) devuelven
-//          el mensaje real de PHP/MySQL en el JSON, para poder diagnosticar
-//          rápido en desarrollo (¿columna que falta? ¿tabla que no existe?
-//          ¿tipo de dato incorrecto?).
-// false -> se devuelve un mensaje genérico ("Error interno del servidor"),
-//          sin exponer detalles internos. USAR ASÍ PARA LA ENTREGA FINAL.
+// Activar solo durante el diagnóstico local.
 if (!defined('SIGERU_DEBUG')) {
     define('SIGERU_DEBUG', false);
 }
@@ -38,7 +30,7 @@ $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
 $opciones = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false, // Consultas preparadas reales -> previene inyección SQL
+    PDO::ATTR_EMULATE_PREPARES   => false,
 ];
 
 try {

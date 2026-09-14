@@ -144,8 +144,6 @@ class CamionController
             return ["status" => "error", "message" => "La cuadrilla indicada no es válida.", "_code" => 400];
         }
 
-        // Si esa cuadrilla ya estaba en otro camión, hay que liberarla de
-        // ahí antes de asignarla acá (esto es lo que permite "reasignar").
         $camionActual = $this->camionModel->buscarPorCuadrilla($cuadrillaId);
         if ($camionActual && $camionActual['matricula'] !== $matricula) {
             if ($this->incidenciaModel->tieneIncidenciasEnCurso($camionActual['matricula'])) {

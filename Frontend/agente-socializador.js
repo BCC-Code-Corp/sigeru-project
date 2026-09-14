@@ -1,37 +1,4 @@
-/**
- * ==================================================
- *  AGENTE SOCIALIZADOR — v3
- * ==================================================
- * SiGeRU no solo gestiona residuos: busca fomentar comportamientos
- * responsables en la comunidad. Cada mensaje se fundamenta en un
- * doble marco (ver Anexo "Marco Teórico y Transversalización con
- * Sociología y Derechos Humanos"): por un lado, cinco autores de la
- * sociología clásica y contemporánea (Durkheim, Bourdieu, Goffman,
- * Beck, Bauman); por otro, tres derechos humanos de tercera
- * generación (ambiente sano, patrimonio cultural y natural,
- * desarrollo sostenible / generaciones futuras).
- *
- * Este archivo ofrece dos formas de mostrar esos mensajes, ambas
- * alimentadas por la misma lista:
- *
- * 1) Widget flotante (landing / páginas públicas):
- *    <div id="agente-socializador"></div>
- *    Se arma solo si ese contenedor existe en la página. Es un
- *    único elemento con position:fixed que nunca se saca del DOM:
- *    entre el estado "tarjeta abierta" y "botón cerrado" solo se
- *    alterna una clase, así el widget nunca reserva espacio de más
- *    ni empuja el layout de la página.
- *
- * 2) Banner integrado (panel interno):
- *    window.SiGeRUAgente.insertar('id-del-contenedor', 'idMensaje')
- *    Inserta el mensaje como parte del contenido de esa sección
- *    (no flota por encima de nada). Se usa, por ejemplo, arriba del
- *    dashboard y del formulario de "Reportar Incidencia".
- *
- * Cada mensaje incluye "Ver más sobre esto", que lleva a la sección
- * correspondiente de impacto-social.html (misma pestaña/ancla, sin
- * desviar al usuario a una página externa).
- */
+// Mensajes y widgets de orientación ambiental.
 
 (function () {
     var MENSAJES = {
@@ -215,8 +182,6 @@
             '</div>';
 
         var tarjeta = contenedor.querySelector('.agente-inline');
-        // Fuerza el reflow para que la animación de entrada se dispare siempre,
-        // incluso si la vista se vuelve a renderizar con el mismo contenido.
         void tarjeta.offsetWidth;
         tarjeta.classList.add('agente-inline--visible');
 

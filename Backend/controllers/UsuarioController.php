@@ -113,7 +113,6 @@ class UsuarioController
             return ["status" => "error", "message" => "El rol '$rol' no es válido.", "_code" => 400];
         }
 
-        // Si el email cambió, verificamos que no choque con el de otro usuario.
         if ($email !== $usuario['email']) {
             $existente = $this->usuarioModel->buscarPorEmail($email);
             if ($existente && (int) $existente['id'] !== $id) {
