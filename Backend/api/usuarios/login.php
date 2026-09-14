@@ -1,13 +1,5 @@
 <?php
-/**
- * ==================================================
- *  API USUARIOS · Autenticación (Login)
- * ==================================================
- * Endpoint : /Backend/api/usuarios/login.php
- * Método   : POST
- * Body     : { "email": string, "password": string }
- * Respuesta: { status, message, usuario? }  ->  200 OK / 400 Bad Request / 401 Unauthorized
- */
+// Login
 
 require_once __DIR__ . '/../../config/conexion.php';
 require_once __DIR__ . '/../../core/Respuesta.php';

@@ -1,9 +1,5 @@
 <?php
-/**
- * ==================================================
- *  CONTROLADOR: CENTROS DE ACOPIO (API Gestión)
- * ==================================================
- */
+// Centros de acopio
 
 require_once __DIR__ . '/../models/CentroAcopio.php';
 

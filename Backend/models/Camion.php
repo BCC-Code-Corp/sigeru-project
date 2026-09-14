@@ -1,13 +1,5 @@
 <?php
-/**
- * ==================================================
- *  MODELO: CAMIÓN
- * ==================================================
- * Representa la tabla `camiones` (flota de recolección).
- * La matrícula es la clave natural: no usamos un id numérico
- * para identificar al camión en la API porque ya es única
- * y es lo que efectivamente identifica al vehículo.
- */
+// Camiones
 
 class Camion
 {
@@ -18,12 +10,6 @@ class Camion
         $this->pdo = $pdo;
     }
 
-    /**
-     * Devuelve todos los camiones ordenados por matrícula, incluyendo el
-     * nombre de la cuadrilla que tengan asignada de forma persistente
-     * (columna `camiones.cuadrilla_id`), si la tienen. `cuadrilla_nombre`
-     * queda en null cuando el camión no tiene cuadrilla asignada.
-     */
     public function listarTodos(): array
     {
         $stmt = $this->pdo->query(
@@ -35,7 +21,6 @@ class Camion
         return $stmt->fetchAll();
     }
 
-    /** Busca un camión puntual por matrícula (incluye el nombre de su cuadrilla, si tiene). */
     public function buscarPorMatricula(string $matricula)
     {
         $stmt = $this->pdo->prepare(
@@ -48,7 +33,6 @@ class Camion
         return $stmt->fetch();
     }
 
-    /** Busca el camión (si existe) que tiene asignada una cuadrilla puntual. */
     public function buscarPorCuadrilla(int $cuadrillaId)
     {
         $stmt = $this->pdo->prepare("SELECT * FROM camiones WHERE cuadrilla_id = ? AND activo=1 LIMIT 1");
@@ -56,7 +40,6 @@ class Camion
         return $stmt->fetch();
     }
 
-    /** Registra un camión nuevo con estado inicial "Disponible". */
     public function crear(string $matricula, ?float $capacidad = null): bool
     {
         $stmt = $this->pdo->prepare(
@@ -65,35 +48,30 @@ class Camion
         return $stmt->execute([$matricula, $capacidad]);
     }
 
-    /** Actualiza capacidad y estado de un camión existente. */
     public function actualizar(string $matricula, ?float $capacidad, string $estado): bool
     {
         $stmt = $this->pdo->prepare("UPDATE camiones SET capacidad_carga = ?, estado = ? WHERE matricula = ?");
         return $stmt->execute([$capacidad, $estado, $matricula]);
     }
 
-    /** Cambia solo el estado de un camión (Disponible, En Ruta, Mantenimiento, etc). */
     public function actualizarEstado(string $matricula, string $estado): bool
     {
         $stmt = $this->pdo->prepare("UPDATE camiones SET estado = ? WHERE matricula = ?");
         return $stmt->execute([$estado, $matricula]);
     }
 
-    /** Elimina un camión de la flota. */
     public function eliminar(string $matricula): bool
     {
         $stmt = $this->pdo->prepare("UPDATE camiones SET activo=0, motivo_baja=? WHERE matricula = ?");
         return $stmt->execute([Sesion::datos()['motivo'] ?? ($_GET['motivo'] ?? 'Baja administrativa'), $matricula]);
     }
 
-    /** Asigna (o reemplaza) la cuadrilla persistente de un camión. */
     public function asignarCuadrilla(string $matricula, int $cuadrillaId): bool
     {
         $stmt = $this->pdo->prepare("UPDATE camiones SET cuadrilla_id = ? WHERE matricula = ?");
         return $stmt->execute([$cuadrillaId, $matricula]);
     }
 
-    /** Quita la cuadrilla persistente asignada a un camión. */
     public function desasignarCuadrilla(string $matricula): bool
     {
         $stmt = $this->pdo->prepare("UPDATE camiones SET cuadrilla_id = NULL WHERE matricula = ?");
